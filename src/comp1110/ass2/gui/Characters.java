@@ -8,6 +8,6 @@ public enum Characters {
     public final ImageView imageView;
 
     Characters() {
-        this.imageView = new ImageView(new Image(getClass().getResourceAsStream("assets/" + this.name() + ".png"), 90, 90, true, true));
+        this.imageView = new ImageView(new Image(getClass().getResourceAsStream("assets/" + this.name() + ".png")));
     }
 }

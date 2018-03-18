@@ -1,6 +1,5 @@
 package comp1110.ass2.gui;
 
-import comp1110.ass2.WarringStatesGame;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -14,6 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 /**
@@ -30,9 +30,10 @@ public class Viewer extends Application {
 
     private static final String URI_BASE = "assets/";
 
-    private final Group root = new Group();
+    private final BorderPane root = new BorderPane();
     private final Group controls = new Group();
-    private GridPane gridPane = new GridPane();
+    private GridPane centreBody = new GridPane();
+
     TextField textField;
 
     /**
@@ -42,14 +43,26 @@ public class Viewer extends Application {
      */
     void makePlacement(String placement) {
         // FIXME Task 4: implement the simple placement viewer
-        placement = testplacement; //for testing
-        gridPane.setPadding(new Insets(2, 2, 2, 2));
-        gridPane.setVgap(3); // individual cells
-        gridPane.setHgap(3);
+        centreBody.getChildren().clear();
+        if (placement.equals("test")) {
+            placement = testplacement; //for testing
+        }
+        centreBody.setPadding(new Insets(20, 10, 20, 10)); // set padding for the pane
 
         //check whether the placement is a valid placement
 
-        for (int i = 0; i < placement.length(); i += 3) {
+        String emptyindex = getEmptySpace(placement);
+        for (int i = 0; i < emptyindex.length(); i++) {  // fill up the empty space for the pane
+            ImageView image = new ImageView(new Image(getClass().getResourceAsStream("assets/empty.png")));
+            String index = getIndex(emptyindex.charAt(i));
+            GridPane.setConstraints(image, index.charAt(0), index.charAt(1));
+            GridPane.setMargin(image, new Insets(10, 0, 0, 10)); // set margins for each image
+            image.fitHeightProperty().bind(root.heightProperty().divide(7.5)); // resize the image to fit the height of the stage
+            image.setPreserveRatio(true); // preserve ratio
+            centreBody.getChildren().add(image);
+        }
+
+        for (int i = 0; i < placement.length(); i += 3) {    // setup the imageView of the character
             String kingdom = String.valueOf(placement.substring(i,i+2));
             String kingdomname = kingdom.toUpperCase();
             ImageView image = null;
@@ -59,13 +72,31 @@ public class Viewer extends Application {
                 }
             }
             String index = getIndex(placement.charAt(i + 2));
-            GridPane.setConstraints(image, index.charAt(0), index.charAt(1));
-            gridPane.getChildren().add(image);
+            GridPane.setConstraints(image, index.charAt(0), index.charAt(1));  // set the index of the character
+            GridPane.setMargin(image, new Insets(10, 0, 0, 10)); // set margins for each image
+            image.fitHeightProperty().bind(root.heightProperty().divide(7.5)); // resize the image to fit the height of the stage
+            image.setPreserveRatio(true); // preserve ratio
+            centreBody.getChildren().add(image);
         }
 
     }
 
-    String getIndex(char index) {
+    String getEmptySpace(String placement) {
+        String fullIndex = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        String existingIndex = "";
+        String emptyIndex = "";
+        for (int i = 0; i < placement.length(); i += 3) {
+            existingIndex += placement.charAt(i + 2);
+        }
+        for (int i = 0; i < fullIndex.length(); i++) {
+            if (existingIndex.indexOf(fullIndex.charAt(i)) == -1) {
+                emptyIndex += fullIndex.charAt(i);
+            }
+        }
+        return emptyIndex;
+    }
+
+    String getIndex(char index) { // get index string from the third char of the character card placement string
         String firstrow = "4YSMGA";
         String secondrow = "5ZTNHB";
         String thirdrow = "60UOIC";
@@ -124,7 +155,8 @@ public class Viewer extends Application {
         primaryStage.setTitle("Warring States Viewer");
         Scene scene = new Scene(root, VIEWER_WIDTH, VIEWER_HEIGHT);
 
-        root.getChildren().addAll(controls,gridPane);
+        root.setBottom(controls);
+        root.setCenter(centreBody);
 
         makeControls();
 
