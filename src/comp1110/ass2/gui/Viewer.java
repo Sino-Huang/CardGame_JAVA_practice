@@ -1,5 +1,6 @@
 package comp1110.ass2.gui;
 
+import comp1110.ass2.WarringStatesGame;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -25,6 +26,7 @@ public class Viewer extends Application {
 
     private static final int VIEWER_WIDTH = 933;
     private static final int VIEWER_HEIGHT = 700;
+    private static final String testplacement = "a0Aa1Ba2Ca3Da4Ea5Fa6Ga7Hb0Ib1Jb2Kb3Lb4Mb5Nb6Oc0Pc1Qc2Rc3Sc4Tc5Ud0Vd1Wd2Xd3Yd4Ze01e12e23e34f05f16f27g08g19Z90";
 
     private static final String URI_BASE = "assets/";
 
@@ -40,17 +42,58 @@ public class Viewer extends Application {
      */
     void makePlacement(String placement) {
         // FIXME Task 4: implement the simple placement viewer
-        gridPane.setPadding(new Insets(10, 10, 10, 10));
-        gridPane.setVgap(8); // individual cells
-        gridPane.setHgap(10);
+        placement = testplacement; //for testing
+        gridPane.setPadding(new Insets(2, 2, 2, 2));
+        gridPane.setVgap(3); // individual cells
+        gridPane.setHgap(3);
 
-        ImageView zhangYi = new ImageView(new Image(getClass().getResourceAsStream("assets/Zhang_Yi.png")));
-        GridPane.setConstraints(zhangYi, 0, 0);
+        //check whether the placement is a valid placement
 
-        ImageView liMu = new ImageView(new Image(getClass().getResourceAsStream("assets/Li Mu.png")));
-        GridPane.setConstraints(liMu, 1, 1);
+        for (int i = 0; i < placement.length(); i += 3) {
+            String kingdom = String.valueOf(placement.substring(i,i+2));
+            String kingdomname = kingdom.toUpperCase();
+            ImageView image = null;
+            for (Characters characters : Characters.values()) {
+                if (kingdomname.equals(characters.name())) {
+                    image = characters.imageView;
+                }
+            }
+            String index = getIndex(placement.charAt(i + 2));
+            GridPane.setConstraints(image, index.charAt(0), index.charAt(1));
+            gridPane.getChildren().add(image);
+        }
 
-        gridPane.getChildren().addAll(zhangYi, liMu);
+    }
+
+    String getIndex(char index) {
+        String firstrow = "4YSMGA";
+        String secondrow = "5ZTNHB";
+        String thirdrow = "60UOIC";
+        String fourthrow = "71VPJD";
+        String fifthrow = "82WQKE";
+        String sixthrow = "93XRLF";
+
+        for (int i = 0; i < 6; i++) {
+            if (index == firstrow.charAt(i)) {
+                return i + "0";
+            }
+            if (index == secondrow.charAt(i)) {
+                return i + "1";
+            }
+            if (index == thirdrow.charAt(i)) {
+                return i + "2";
+            }
+            if (index == fourthrow.charAt(i)) {
+                return i + "3";
+            }
+            if (index == fifthrow.charAt(i)) {
+                return i + "4";
+            }
+            if (index == sixthrow.charAt(i)) {
+                return i + "5";
+            }
+        }
+        return "error";
     }
 
     /**
