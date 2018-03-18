@@ -27,14 +27,14 @@ public class WarringStatesGame {
         // FIXME Task 2: determine whether a card placement is well-formed
         ArrayList<String> country =  new ArrayList<String>();
 
-        for (int i = 97; i <= 103; i++){
+        for (int i = 97; i <= 103; i++){ // create countries a...g
             String alpha  = String.valueOf((char) i);
             country.add(alpha);
         }
 
         ArrayList<String> place =  new ArrayList<String>();
 
-        for (int i = 65; i <= 90; i++){
+        for (int i = 65; i <= 90; i++){ // create string of place A..Z&0..9
             String p  = String.valueOf((char) i);
             place.add(p);
         }
@@ -48,18 +48,18 @@ public class WarringStatesGame {
         int character = 7;
         for (String c : country) {
             String vaild = "";
-            String vaildc = vaild.concat(c);
+            String vaildc = vaild.concat(c);  // add country to string
             for (int i = 0 ; i <= character;i++){
-                String vaildcn =vaildc.concat(String.valueOf(i));
+                String vaildcn =vaildc.concat(String.valueOf(i)); // add person of all countries
                 for (String p : place){
-                    String vaildcnp =vaildcn.concat(p);
+                    String vaildcnp =vaildcn.concat(p); // add place of each person
                     vaildCombination.add(vaildcnp);
                 }
             }
             character --;
         }
 
-        String ZhangYi = "Z9";
+        String ZhangYi = "Z9";  //place of ZhangYi
         for (String p : place){
             String vaildcnp =ZhangYi.concat(p);
             vaildCombination.add(vaildcnp);
@@ -89,40 +89,37 @@ public class WarringStatesGame {
         // FIXME Task 3: determine whether a placement is well-formed
         boolean tOrf = true;
 
-        ArrayList<String> placementArray = new ArrayList<>();
-        int index = 0;
-        while (index < placement.length()) {   // split the placement by 3
-            placementArray.add(placement.substring(index, Math.min(index + 3,placement.length())));
-            index += 3;
-        }
-        int sum=0 ;
-        for (String p : placementArray){
-            if (isCardPlacementWellFormed(p)){
-                sum ++;
-            }
-        }
 
         if (placement.length() != 36*3){
-            tOrf = false;
-        }
-
-        if (sum<36){
-            tOrf = false;
-        }
-        if (placement.length() != 36*3){
-            tOrf = false;
+            tOrf = false;   // check the length of placement
         }
         else {
-            ArrayList<Character> place = new ArrayList<>();
+            ArrayList<String> placementArray = new ArrayList<>();
+            int index = 0;
+            while (index < placement.length()) {   // split the placement by 3
+                placementArray.add(placement.substring(index, index + 3));
+                index += 3;
+            }
+            int sum=0 ;  // check is the splited array well formed
+            for (String p : placementArray){
+                if (isCardPlacementWellFormed(p)){
+                    sum ++;
+                }
+            }
+
+            if (sum<36){
+                tOrf = false;
+            }
+            ArrayList<Character> place = new ArrayList<>(); //check the place repeated or not
             for (int i = 2; i <= 36 * 3; i = i + 3) {
                 place.add(placement.charAt(i));
             }
-            Set<Character> placeSet = new HashSet<>(place);
+            Set<Character> placeSet = new HashSet<>(place); // check the duplicate of place
             if (placeSet.size() < place.size()) {
                 tOrf = false;
             }
 
-            ArrayList<String> card = new ArrayList<>();
+            ArrayList<String> card = new ArrayList<>(); // check if any card repeat
             for (int i = 0; i <= 36 * 3 - 2; i = i + 3) {
                 char c1 = placement.charAt(i);
                 char c2 = placement.charAt(i + 1);
