@@ -3,11 +3,15 @@ package comp1110.ass2.gui;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
@@ -26,6 +30,7 @@ public class Viewer extends Application {
 
     private final Group root = new Group();
     private final Group controls = new Group();
+    private GridPane gridPane = new GridPane();
     TextField textField;
 
     /**
@@ -35,6 +40,17 @@ public class Viewer extends Application {
      */
     void makePlacement(String placement) {
         // FIXME Task 4: implement the simple placement viewer
+        gridPane.setPadding(new Insets(10, 10, 10, 10));
+        gridPane.setVgap(8); // individual cells
+        gridPane.setHgap(10);
+
+        ImageView zhangYi = new ImageView(new Image(getClass().getResourceAsStream("assets/Zhang_Yi.png")));
+        GridPane.setConstraints(zhangYi, 0, 0);
+
+        ImageView liMu = new ImageView(new Image(getClass().getResourceAsStream("assets/Li Mu.png")));
+        GridPane.setConstraints(liMu, 1, 1);
+
+        gridPane.getChildren().addAll(zhangYi, liMu);
     }
 
     /**
@@ -65,7 +81,7 @@ public class Viewer extends Application {
         primaryStage.setTitle("Warring States Viewer");
         Scene scene = new Scene(root, VIEWER_WIDTH, VIEWER_HEIGHT);
 
-        root.getChildren().add(controls);
+        root.getChildren().addAll(controls,gridPane);
 
         makeControls();
 
