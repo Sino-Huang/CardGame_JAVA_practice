@@ -1,9 +1,5 @@
 package comp1110.ass2;
 
-import com.sun.org.apache.bcel.internal.generic.ARRAYLENGTH;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import sun.font.TrueTypeFont;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,7 +8,7 @@ import java.util.Set;
  * This class provides the text interface for the Warring States game
  */
 public class WarringStatesGame {
-    private static ArrayList<String> vaildCombination = new ArrayList<>();
+    private static ArrayList<String> validCombination = new ArrayList<>();
 
     /**
      * Determine whether a card placement is well-formed according to the following:
@@ -26,7 +22,7 @@ public class WarringStatesGame {
      */
     static boolean isCardPlacementWellFormed(String cardPlacement) {
         // FIXME Task 2: determine whether a card placement is well-formed
-        vaildCombination.clear();
+        validCombination.clear();
         ArrayList<String> country =  new ArrayList<String>();
 
         for (int i = 97; i <= 103; i++){ // create countries a...g
@@ -49,32 +45,24 @@ public class WarringStatesGame {
 
         int character = 7;
         for (String c : country) {
-            String vaild = "";
-            String vaildc = vaild.concat(c);  // add country to string
+            String valid = "";
+            String validdc = valid.concat(c);  // add country to string
             for (int i = 0 ; i <= character;i++){
-                String vaildcn =vaildc.concat(String.valueOf(i)); // add person of all countries
+                String validcn =validdc.concat(String.valueOf(i)); // add person of all countries
                 for (String p : place){
-                    String vaildcnp =vaildcn.concat(p); // add place of each person
-                    vaildCombination.add(vaildcnp);
+                    String validcnp =validcn.concat(p); // add place of each person
+                    validCombination.add(validcnp);
                 }
             }
             character --;
         }
-
         String ZhangYi = "z9";  //place of ZhangYi is 'z9'
         for (String p : place){
             String vaildcnp =ZhangYi.concat(p);
-            vaildCombination.add(vaildcnp);
+            validCombination.add(vaildcnp);
         }
 
-
-        boolean tOrf = false;
-
-        if (vaildCombination.contains(cardPlacement)){
-            tOrf = true;
-        }
-
-        return tOrf;
+        return validCombination.contains(cardPlacement);
     }
 
     /**
@@ -89,60 +77,10 @@ public class WarringStatesGame {
      */
     static boolean isPlacementWellFormed(String placement) {
         // FIXME Task 3: determine whether a placement is well-formed
-        boolean tOrf = true;
-
-
-        if (placement.length() != 36*3){
-            tOrf = false;   // check the length of placement
-        }
-        else {
-            ArrayList<String> placementArray = new ArrayList<>();
-            int index = 0;
-            while (index < placement.length()) {   // split the placement by 3
-                placementArray.add(placement.substring(index, index + 3));
-                index += 3;
-            }
-            int sum=0 ;  // check is the splited array well formed
-            for (String p : placementArray){
-                if (isCardPlacementWellFormed(p)){
-                    sum ++;
-                }
-            }
-
-            if (sum<36){
-                tOrf = false;
-            }
-            ArrayList<Character> place = new ArrayList<>(); //check the place repeated or not
-            for (int i = 2; i <= 36 * 3; i = i + 3) {
-                place.add(placement.charAt(i));
-            }
-            Set<Character> placeSet = new HashSet<>(place); // check the duplicate of place
-            if (placeSet.size() < place.size()) {
-                tOrf = false;
-            }
-
-            ArrayList<String> card = new ArrayList<>(); // check if any card repeat
-            for (int i = 0; i <= 36 * 3 - 2; i = i + 3) {
-                char c1 = placement.charAt(i);
-                char c2 = placement.charAt(i + 1);
-                String s = String.valueOf(c1).concat(String.valueOf(c2));
-
-                card.add(s);
-            }
-            Set<String> cardSet = new HashSet<>(card);
-            if (cardSet.size() < card.size()) {
-                tOrf = false;
-            }
-        }
-
-        return tOrf;
-        //better method
-/*        if (placement == null || placement.equals("")) { // add null case
-//            System.out.println("null issue");
+        if (placement == null || placement.equals("")) { // add null case
             return false;
         }
-        if (placement.length() % 3 != 0) {
-//            System.out.println("Wrong length of string");
+        if (placement.length() % 3 != 0) { // Wrong length of string check
             return false;
         }
         Set<String> indexSet = new HashSet<>();
@@ -154,22 +92,19 @@ public class WarringStatesGame {
             characterSet.add(card.substring(0, 2));
             placementSet.add(card);
         }
-        if (indexSet.size() != placement.length() / 3) {
-//            System.out.println("duplicate index");
+        if (indexSet.size() != placement.length() / 3) { // duplicate index check
             return false;
         }
-        if (characterSet.size() != placement.length() / 3) {
-//            System.out.println("Character is not correct or duplicate");
+        if (characterSet.size() != placement.length() / 3) { // Character is not correct or duplicate check
             return false;
         }
-        isCardPlacementWellFormed("a2A");
-        for (String card : placementSet) {
-            if (!vaildCombination.contains(card)) {
-//                System.out.println("Card is not correct");
+        isCardPlacementWellFormed("a2A"); // init the validplacementarray
+        for (String card : placementSet) { // card valid check
+            if (!validCombination.contains(card)) {
                 return false;
             }
         }
-        return true;*/
+        return true;
     }
 
     /**
