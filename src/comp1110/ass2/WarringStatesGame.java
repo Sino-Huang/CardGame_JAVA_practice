@@ -12,6 +12,7 @@ import java.util.Set;
  * This class provides the text interface for the Warring States game
  */
 public class WarringStatesGame {
+    private static ArrayList<String> vaildCombination = new ArrayList<>();
 
     /**
      * Determine whether a card placement is well-formed according to the following:
@@ -25,6 +26,7 @@ public class WarringStatesGame {
      */
     static boolean isCardPlacementWellFormed(String cardPlacement) {
         // FIXME Task 2: determine whether a card placement is well-formed
+        vaildCombination.clear();
         ArrayList<String> country =  new ArrayList<String>();
 
         for (int i = 97; i <= 103; i++){ // create countries a...g
@@ -44,7 +46,7 @@ public class WarringStatesGame {
             place.add(p);
         }
 
-        ArrayList<String> vaildCombination = new ArrayList<>();
+
         int character = 7;
         for (String c : country) {
             String vaild = "";
@@ -59,7 +61,7 @@ public class WarringStatesGame {
             character --;
         }
 
-        String ZhangYi = "Z9";  //place of ZhangYi
+        String ZhangYi = "z9";  //place of ZhangYi is 'z9'
         for (String p : place){
             String vaildcnp =ZhangYi.concat(p);
             vaildCombination.add(vaildcnp);
@@ -134,6 +136,40 @@ public class WarringStatesGame {
         }
 
         return tOrf;
+        //better method
+/*        if (placement == null || placement.equals("")) { // add null case
+//            System.out.println("null issue");
+            return false;
+        }
+        if (placement.length() % 3 != 0) {
+//            System.out.println("Wrong length of string");
+            return false;
+        }
+        Set<String> indexSet = new HashSet<>();
+        Set<String> characterSet = new HashSet<>();
+        Set<String> placementSet = new HashSet<>();
+        for (int i = 0; i < placement.length(); i += 3) {
+            String card = placement.substring(i, i + 3);
+            indexSet.add(card.substring(2));
+            characterSet.add(card.substring(0, 2));
+            placementSet.add(card);
+        }
+        if (indexSet.size() != placement.length() / 3) {
+//            System.out.println("duplicate index");
+            return false;
+        }
+        if (characterSet.size() != placement.length() / 3) {
+//            System.out.println("Character is not correct or duplicate");
+            return false;
+        }
+        isCardPlacementWellFormed("a2A");
+        for (String card : placementSet) {
+            if (!vaildCombination.contains(card)) {
+//                System.out.println("Card is not correct");
+                return false;
+            }
+        }
+        return true;*/
     }
 
     /**
