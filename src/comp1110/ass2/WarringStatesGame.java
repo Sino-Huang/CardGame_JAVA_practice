@@ -121,6 +121,14 @@ public class WarringStatesGame {
      */
     public static boolean isMoveLegal(String placement, char locationChar) {
         // FIXME Task 5: determine whether a given move is legal
+        //whether location char in in the range
+
+        //whether the location has a card
+
+        //whether the location is in the same row or column of the Zhang Yi's grid
+
+        //no same kingdom card in the same line that is further away from Zhang yi
+
         return false;
     }
 
@@ -137,6 +145,12 @@ public class WarringStatesGame {
      */
     static boolean isMoveSequenceValid(String setup, String moveSequence) {
         // FIXME Task 6: determine whether a placement sequence is valid
+        // check whether the first move is valid
+
+        // update the placement string
+
+        // recursively check
+
         return false;
     }
 
@@ -154,6 +168,10 @@ public class WarringStatesGame {
      */
     public static String getSupporters(String setup, String moveSequence, int numPlayers, int playerId) {
         // FIXME Task 7: get the list of supporters for a given player after a sequence of moves
+        // check which move is corresponding to the player
+
+        // simulate the game, get the card at that player's round, add to the string
+
         return null;
     }
 
@@ -176,6 +194,16 @@ public class WarringStatesGame {
      */
     public static int[] getFlags(String setup, String moveSequence, int numPlayers) {
         // FIXME Task 8: determine which player controls the flag of each kingdom after a given sequence of moves
+        int[] flagArray = new int[7]; // init the flag array
+
+        // simulate the game, collect the supporter string of each player
+
+        // sort the supporter string to find who has the highest support for that kingdom
+
+        // add the player to the flag array
+
+        // recursively find highest support for the next kingdom
+
         return null;
     }
 
@@ -195,6 +223,12 @@ public class WarringStatesGame {
      */
     public static char generateMove(String placement) {
         // FIXME Task 10: generate a legal move
+        // generate all legal moves for zhang yi
+
+        // randomly choose one legal move
+
+        //for task 12, adjust generateMove to return a valuable move.
+
         return '\0';
     }
 }
