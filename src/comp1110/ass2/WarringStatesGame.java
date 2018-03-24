@@ -1,6 +1,7 @@
 package comp1110.ass2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -119,17 +120,130 @@ public class WarringStatesGame {
      * @param locationChar a location for Zhang Yi to move to
      * @return true if Zhang Yi may move to that location
      */
+     static HashMap<Character,int[]> hm = new HashMap();
+     static { // Create hashmap to describe the location
+        hm.put(' ', new int[] {-1,-1});
+        hm.put('A', new int[] {0,0});
+        hm.put('B', new int[] {0,1});
+        hm.put('C', new int[] {0,2});
+        hm.put('D', new int[] {0,3});
+        hm.put('E', new int[] {0,4});
+        hm.put('F', new int[] {0,5});
+        hm.put('G', new int[] {1,0});
+        hm.put('H', new int[] {1,1});
+        hm.put('I', new int[] {1,2});
+        hm.put('J', new int[] {1,3});
+        hm.put('K', new int[] {1,4});
+        hm.put('L', new int[] {1,5});
+        hm.put('M', new int[] {2,0});
+        hm.put('N', new int[] {2,1});
+        hm.put('O', new int[] {2,2});
+        hm.put('P', new int[] {2,3});
+        hm.put('Q', new int[] {2,4});
+        hm.put('R', new int[] {2,5});
+        hm.put('S', new int[] {3,0});
+        hm.put('T', new int[] {3,1});
+        hm.put('U', new int[] {3,2});
+        hm.put('V', new int[] {3,3});
+        hm.put('W', new int[] {3,4});
+        hm.put('X', new int[] {3,5});
+        hm.put('Y', new int[] {4,0});
+        hm.put('Z', new int[] {4,1});
+        hm.put('0', new int[] {4,2});
+        hm.put('1', new int[] {4,3});
+        hm.put('2', new int[] {4,4});
+        hm.put('3', new int[] {4,5});
+        hm.put('4', new int[] {5,0});
+        hm.put('5', new int[] {5,1});
+        hm.put('6', new int[] {5,2});
+        hm.put('7', new int[] {5,3});
+        hm.put('8', new int[] {5,4});
+        hm.put('9', new int[] {5,5});
+
+    }
     public static boolean isMoveLegal(String placement, char locationChar) {
         // FIXME Task 5: determine whether a given move is legal
-        //whether location char in in the range
+        if((int) locationChar < 48 || ((int) locationChar > 57 && (int) locationChar < 65) || (int) locationChar > 91){
+            //hether location char in in the range
+            return false;
+        }
 
-        //whether the location has a card
+        if(placement.equals("")){ // hether the location has a card
+            return false;
+        }else {
+            int count = 0;
+            for (int i = 2; i < placement.length(); i += 3) {
+                if(placement.charAt(i) != locationChar){
+                    count += 1;
+                }
+            }
+            if(count == placement.length()/3){
+                return false;
+            }
+        }
 
-        //whether the location is in the same row or column of the Zhang Yi's grid
+        char zhangyi = ' ';
+        for(int i = 0; i < placement.length(); i++){ // get the location of Zhangyi
+            if (placement.charAt(i) == 'z'){
+                zhangyi = placement.charAt(i + 2);
+            }
+        }
 
-        //no same kingdom card in the same line that is further away from Zhang yi
+        if(hm.get(zhangyi)[0] != hm.get(locationChar)[0] && hm.get(zhangyi)[1] != hm.get(locationChar)[1]){
+            return false;
+        } // Whether the location is in the same row or column of the Zhang Yi's grid
 
-        return false;
+        char country = ' ';
+        for(int i = 2; i < placement.length(); i += 3){ // Get the country of locationChar
+            if(placement.charAt(i) == locationChar){
+                country = placement.charAt(i - 2);
+            }
+        }
+
+        String countries = "";
+        for(int i = 0; i < placement.length(); i++){ // Get all the locations of the country above
+            if(placement.charAt(i) == country){
+                countries = countries + String.valueOf(placement.charAt(i + 2));
+            }
+        }
+
+        // No same kingdom card in the same line that is further away from Zhang yi
+        if(hm.get(zhangyi)[0] == hm.get(locationChar)[0]) { // Same column case
+            if (hm.get(zhangyi)[1] > hm.get(locationChar)[1]) { // Up direction
+                for (int i = 0; i < countries.length(); i++) {
+                    char a = countries.charAt(i);
+                    if (hm.get(a)[1] < hm.get(locationChar)[1] && hm.get(a)[0] == hm.get(locationChar)[0]) {
+                        return false;
+                    }
+                }
+            } else if (hm.get(zhangyi)[1] < hm.get(locationChar)[1]) { // Down direction
+                for (int i = 0; i < countries.length(); i++) {
+                    char a = countries.charAt(i);
+                    if (hm.get(a)[1] > hm.get(locationChar)[1] && hm.get(a)[0] == hm.get(locationChar)[0]) {
+                        return false;
+                    }
+                }
+            }
+
+        }else if (hm.get(zhangyi)[1] == hm.get(locationChar)[1]){ // Same row case
+            if(hm.get(zhangyi)[0] > hm.get(locationChar)[0]){ // Right direction
+                for(int i = 0; i < countries.length(); i++){
+                    char a = countries.charAt(i);
+                    if(hm.get(a)[0] < hm.get(locationChar)[0] && hm.get(a)[1] == hm.get(locationChar)[1]){
+                        return false;
+                    }
+                }
+            }else if(hm.get(zhangyi)[0] < hm.get(locationChar)[0]){ // Left direction
+                for(int i = 0; i < countries.length(); i++){
+                    char a = countries.charAt(i);
+                    if(hm.get(a)[0] > hm.get(locationChar)[0] && hm.get(a)[1] == hm.get(locationChar)[1]){
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
