@@ -201,9 +201,9 @@ public class WarringStatesGame {
         }
 
         String countries = "";
-        for(int i = 0; i < placement.length()-2; i++){ // Get all the locations of the country above
+        for(int i = 0; i < placement.length(); i += 3){ // Get all the locations of the country above
             if(placement.charAt(i) == country){
-                countries = countries + String.valueOf(placement.charAt(i+2));
+                countries = countries + String.valueOf(placement.charAt(i + 2));
             }
         }
 
