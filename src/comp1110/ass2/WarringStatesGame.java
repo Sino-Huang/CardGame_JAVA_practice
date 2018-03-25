@@ -295,7 +295,9 @@ public class WarringStatesGame {
                     if (hm.get(zhangyi)[1] > hm.get(moveSequence.charAt(0))[1]) { // Up direction
                         for (int i = 0; i < countries.length(); i++) {
                             char a = countries.charAt(i);
-                            if (hm.get(a)[1] >= hm.get(moveSequence.charAt(0))[1] && hm.get(a)[0] == hm.get(moveSequence.charAt(0))[0]) {
+                            if (hm.get(a)[1] >= hm.get(moveSequence.charAt(0))[1] &&
+                                    hm.get(a)[0] == hm.get(moveSequence.charAt(0))[0] &&
+                                    hm.get(a)[1] < hm.get(zhangyi)[1]) {
                                 for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
                                     if (setup.charAt(j) == a) {
                                         setupbuilder.delete(j - 2,j + 1);
@@ -306,7 +308,9 @@ public class WarringStatesGame {
                     } else if (hm.get(zhangyi)[1] < hm.get(moveSequence.charAt(0))[1]) { // Down direction
                         for (int i = 0; i < countries.length(); i++) {
                             char a = countries.charAt(i);
-                            if (hm.get(a)[1] <= hm.get(moveSequence.charAt(0))[1] && hm.get(a)[0] == hm.get(moveSequence.charAt(0))[0]) {
+                            if (hm.get(a)[1] <= hm.get(moveSequence.charAt(0))[1] &&
+                                    hm.get(a)[0] == hm.get(moveSequence.charAt(0))[0] &&
+                                    hm.get(a)[1] > hm.get(zhangyi)[1]) {
                                 for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
                                     if (setup.charAt(j) == a) {
                                         setupbuilder.delete(j - 2, j + 1);
@@ -321,7 +325,9 @@ public class WarringStatesGame {
                     if(hm.get(zhangyi)[0] > hm.get(moveSequence.charAt(0))[0]){ // Right direction
                         for(int i = 0; i < countries.length(); i++){
                             char a = countries.charAt(i);
-                            if (hm.get(a)[0] >= hm.get(moveSequence.charAt(0))[0] && hm.get(a)[1] == hm.get(moveSequence.charAt(0))[1]) {
+                            if (hm.get(a)[0] >= hm.get(moveSequence.charAt(0))[0] &&
+                                    hm.get(a)[1] == hm.get(moveSequence.charAt(0))[1] &&
+                                    hm.get(a)[0] < hm.get(zhangyi)[0]) {
                                 for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
                                     if (setup.charAt(j) == a) {
                                         setupbuilder.delete(j - 2, j + 1);
@@ -333,7 +339,9 @@ public class WarringStatesGame {
                     }else if(hm.get(zhangyi)[0] < hm.get(moveSequence.charAt(0))[0]){ // Left direction
                         for(int i = 0; i < countries.length(); i++){
                             char a = countries.charAt(i);
-                            if (hm.get(a)[0] <= hm.get(moveSequence.charAt(0))[0] && hm.get(a)[1] == hm.get(moveSequence.charAt(0))[1]) {
+                            if (hm.get(a)[0] <= hm.get(moveSequence.charAt(0))[0] &&
+                                    hm.get(a)[1] == hm.get(moveSequence.charAt(0))[1] &&
+                                    hm.get(a)[0] > hm.get(zhangyi)[0]) {
                                 for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
                                     if (setup.charAt(j) == a) {
                                         setupbuilder.delete(j - 2, j + 1);
