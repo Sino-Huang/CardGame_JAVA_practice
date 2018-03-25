@@ -275,7 +275,7 @@ public class WarringStatesGame {
                 }
 
                 String countries = "";
-                for(int i = 0; i < setup.length()-2; i++){ // Get all the locations of the country above
+                for(int i = 0; i < setup.length(); i += 3 ){ // Get all the locations of the country above
                     if(setup.charAt(i) == country){
                         countries = countries + String.valueOf(setup.charAt(i + 2));
                     }
@@ -288,6 +288,9 @@ public class WarringStatesGame {
                         setupbuilder.replace(i + 2,i + 3,String.valueOf(moveSequence.charAt(0)));
                     }
                 }
+                if (zhangyi == moveSequence.charAt(0)){ // Check duplicate
+                    return false;
+                }
 
 
                 //delete country
@@ -299,7 +302,7 @@ public class WarringStatesGame {
                                     hm.get(a)[0] == hm.get(moveSequence.charAt(0))[0] &&
                                     hm.get(a)[1] < hm.get(zhangyi)[1]) {
                                 for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
-                                    if (setup.charAt(j) == a) {
+                                    if (setupbuilder.charAt(j) == a) {
                                         setupbuilder.delete(j - 2,j + 1);
                                     }
                                 }
@@ -312,7 +315,7 @@ public class WarringStatesGame {
                                     hm.get(a)[0] == hm.get(moveSequence.charAt(0))[0] &&
                                     hm.get(a)[1] > hm.get(zhangyi)[1]) {
                                 for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
-                                    if (setup.charAt(j) == a) {
+                                    if (setupbuilder.charAt(j) == a) {
                                         setupbuilder.delete(j - 2, j + 1);
                                     }
                                 }
@@ -329,7 +332,7 @@ public class WarringStatesGame {
                                     hm.get(a)[1] == hm.get(moveSequence.charAt(0))[1] &&
                                     hm.get(a)[0] < hm.get(zhangyi)[0]) {
                                 for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
-                                    if (setup.charAt(j) == a) {
+                                    if (setupbuilder.charAt(j) == a) {
                                         setupbuilder.delete(j - 2, j + 1);
                                     }
                                 }
@@ -343,7 +346,7 @@ public class WarringStatesGame {
                                     hm.get(a)[1] == hm.get(moveSequence.charAt(0))[1] &&
                                     hm.get(a)[0] > hm.get(zhangyi)[0]) {
                                 for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
-                                    if (setup.charAt(j) == a) {
+                                    if (setupbuilder.charAt(j) == a) {
                                         setupbuilder.delete(j - 2, j + 1);
                                     }
                                 }
@@ -352,7 +355,9 @@ public class WarringStatesGame {
                     }
                 }
                 //update the placement string
+
                 setup = setupbuilder.toString();
+                setup += "z9" + moveSequence.charAt(0);
                 moveSequence = moveSequence.substring(1,moveSequence.length());
                 return isMoveSequenceValid(setup,moveSequence);// recursively check
             }else{
@@ -361,6 +366,9 @@ public class WarringStatesGame {
         }
     }
 
+    public static void main(String[] args) {
+        isMoveSequenceValid("g0Aa0Bf1Ca1Dc5Ee1Fa4Ge3He2Ia2Jc2Kd0Lf0Mb4Nd4Oa6Pc3Qe0Ra5Sc1Td1Uc4Vb5Wb0Xa7Yf2Zb10a31z92b33b64d35g16b27d28c09","W845HGAYMNZ1VDFEBTUOI0C69RLKQ");
+    }
     /**
      * Get the list of supporters for the chosen player, given the provided
      * setup and move sequence.
