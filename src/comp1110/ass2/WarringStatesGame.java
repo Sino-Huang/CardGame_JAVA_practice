@@ -355,7 +355,6 @@ public class WarringStatesGame {
                     }
                 }
                 //update the placement string
-
                 setup = setupbuilder.toString();
                 setup += "z9" + moveSequence.charAt(0);
                 moveSequence = moveSequence.substring(1,moveSequence.length());
@@ -366,9 +365,7 @@ public class WarringStatesGame {
         }
     }
 
-    public static void main(String[] args) {
-        isMoveSequenceValid("g0Aa0Bf1Ca1Dc5Ee1Fa4Ge3He2Ia2Jc2Kd0Lf0Mb4Nd4Oa6Pc3Qe0Ra5Sc1Td1Uc4Vb5Wb0Xa7Yf2Zb10a31z92b33b64d35g16b27d28c09","W845HGAYMNZ1VDFEBTUOI0C69RLKQ");
-    }
+
     /**
      * Get the list of supporters for the chosen player, given the provided
      * setup and move sequence.
