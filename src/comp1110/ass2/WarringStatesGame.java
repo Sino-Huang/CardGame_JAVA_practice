@@ -164,11 +164,11 @@ public class WarringStatesGame {
     public static boolean isMoveLegal(String placement, char locationChar) {
         // FIXME Task 5: determine whether a given move is legal
         if((int) locationChar < 48 || ((int) locationChar > 57 && (int) locationChar < 65) || (int) locationChar > 91){
-            //hether location char in in the range
+            // Whether location char in in the range
             return false;
         }
 
-        if(placement.equals("")){ // hether the location has a card
+        if(placement.equals("")){ // Whether the location has a card
             return false;
         }else {
             int count = 0;
@@ -201,9 +201,9 @@ public class WarringStatesGame {
         }
 
         String countries = "";
-        for(int i = 0; i < placement.length(); i++){ // Get all the locations of the country above
+        for(int i = 0; i < placement.length()-2; i++){ // Get all the locations of the country above
             if(placement.charAt(i) == country){
-                countries = countries + String.valueOf(placement.charAt(i + 2));
+                countries = countries + String.valueOf(placement.charAt(i+2));
             }
         }
 
@@ -259,13 +259,98 @@ public class WarringStatesGame {
      */
     static boolean isMoveSequenceValid(String setup, String moveSequence) {
         // FIXME Task 6: determine whether a placement sequence is valid
-        // check whether the first move is valid
 
-        // update the placement string
+        if(moveSequence.length()==0){
+            return true;
+        }else{
+            // check whether the first move is valid
+            if(isMoveLegal(setup,moveSequence.charAt(0))){ // Check whether the move legal
 
-        // recursively check
+                StringBuilder setupbuilder = new StringBuilder(setup);
+                char country = ' ';
+                for(int i = 2; i < setup.length(); i += 3){ // Get the country of moveSequence
+                    if(setup.charAt(i) == moveSequence.charAt(0)){
+                        country = setup.charAt(i - 2);
+                    }
+                }
 
-        return false;
+                String countries = "";
+                for(int i = 0; i < setup.length()-2; i++){ // Get all the locations of the country above
+                    if(setup.charAt(i) == country){
+                        countries = countries + String.valueOf(setup.charAt(i + 2));
+                    }
+                }
+
+                char zhangyi = ' ';
+                for(int i = 0; i < setup.length(); i++){ // Get the location of Zhangyi and move the location of Zhangyi
+                    if (setup.charAt(i) == 'z'){
+                        zhangyi = setup.charAt(i + 2);
+                        setupbuilder.replace(i + 2,i + 3,String.valueOf(moveSequence.charAt(0)));
+                    }
+                }
+
+
+                //delete country
+                if(hm.get(zhangyi)[0] == hm.get(moveSequence.charAt(0))[0]) { // Same column case
+                    if (hm.get(zhangyi)[1] > hm.get(moveSequence.charAt(0))[1]) { // Up direction
+                        for (int i = 0; i < countries.length(); i++) {
+                            char a = countries.charAt(i);
+                            if (hm.get(a)[1] >= hm.get(moveSequence.charAt(0))[1] && hm.get(a)[0] == hm.get(moveSequence.charAt(0))[0]) {
+                                for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
+                                    if (setup.charAt(j) == a) {
+                                        setupbuilder.delete(j - 2,j + 1);
+                                    }
+                                }
+                            }
+                        }
+                    } else if (hm.get(zhangyi)[1] < hm.get(moveSequence.charAt(0))[1]) { // Down direction
+                        for (int i = 0; i < countries.length(); i++) {
+                            char a = countries.charAt(i);
+                            if (hm.get(a)[1] <= hm.get(moveSequence.charAt(0))[1] && hm.get(a)[0] == hm.get(moveSequence.charAt(0))[0]) {
+                                for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
+                                    if (setup.charAt(j) == a) {
+                                        setupbuilder.delete(j - 2, j + 1);
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+
+                }else if (hm.get(zhangyi)[1] == hm.get(moveSequence.charAt(0))[1]){ // Same row case
+                    if(hm.get(zhangyi)[0] > hm.get(moveSequence.charAt(0))[0]){ // Right direction
+                        for(int i = 0; i < countries.length(); i++){
+                            char a = countries.charAt(i);
+                            if (hm.get(a)[0] >= hm.get(moveSequence.charAt(0))[0] && hm.get(a)[1] == hm.get(moveSequence.charAt(0))[1]) {
+                                for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
+                                    if (setup.charAt(j) == a) {
+                                        setupbuilder.delete(j - 2, j + 1);
+                                    }
+                                }
+                            }
+
+                        }
+                    }else if(hm.get(zhangyi)[0] < hm.get(moveSequence.charAt(0))[0]){ // Left direction
+                        for(int i = 0; i < countries.length(); i++){
+                            char a = countries.charAt(i);
+                            if (hm.get(a)[0] <= hm.get(moveSequence.charAt(0))[0] && hm.get(a)[1] == hm.get(moveSequence.charAt(0))[1]) {
+                                for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
+                                    if (setup.charAt(j) == a) {
+                                        setupbuilder.delete(j - 2, j + 1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                //update the placement string
+                setup = setupbuilder.toString();
+                moveSequence = moveSequence.substring(1,moveSequence.length());
+                return isMoveSequenceValid(setup,moveSequence);// recursively check
+            }else{
+                return false;
+            }
+        }
     }
 
     /**
