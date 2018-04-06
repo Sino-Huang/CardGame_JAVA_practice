@@ -49,6 +49,6 @@ public class Player {
     }
 
     public void setScore() {
-        this.score = flags.length * 10 + cards.length * 0.1;
+        this.score = flags.size() * 10 + cards.size() * 0.1;
     }
 }
