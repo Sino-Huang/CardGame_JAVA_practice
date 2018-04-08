@@ -19,11 +19,11 @@ enum Flags {
 }
 
 public class Player {
-    private String name;
-    private int position;
-    private HashSet<Characters> cards;
-    private HashSet<Flags> flags;
-    private double score;
+    public String name;
+    public int position;
+    public HashSet<Characters> cards;
+    public HashSet<Flags> flags;
+    public double score;
 
     public Player(String name, int position) {
         this.name = name;

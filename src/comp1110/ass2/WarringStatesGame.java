@@ -9,7 +9,6 @@ import java.util.Set;
  * This class provides the text interface for the Warring States game
  */
 public class WarringStatesGame {
-    public static String boardPlacement = ""; // this is the board information for task 9 and above
     private static ArrayList<String> validCombination = new ArrayList<>();
 
     /**
@@ -266,105 +265,114 @@ public class WarringStatesGame {
         }else{
             // check whether the first move is valid
             if(isMoveLegal(setup,moveSequence.charAt(0))){ // Check whether the move legal
-
-                StringBuilder setupbuilder = new StringBuilder(setup);
-                char country = ' ';
-                for(int i = 2; i < setup.length(); i += 3){ // Get the country of moveSequence
-                    if(setup.charAt(i) == moveSequence.charAt(0)){
-                        country = setup.charAt(i - 2);
-                    }
-                }
-
-                String countries = "";
-                for(int i = 0; i < setup.length(); i += 3 ){ // Get all the locations of the country above
-                    if(setup.charAt(i) == country){
-                        countries = countries + String.valueOf(setup.charAt(i + 2));
-                    }
-                }
-
                 char zhangyi = ' ';
                 for(int i = 0; i < setup.length(); i++){ // Get the location of Zhangyi and move the location of Zhangyi
                     if (setup.charAt(i) == 'z'){
                         zhangyi = setup.charAt(i + 2);
-                        setupbuilder.replace(i + 2,i + 3,String.valueOf(moveSequence.charAt(0)));
                     }
                 }
                 if (zhangyi == moveSequence.charAt(0)){ // Check duplicate
                     return false;
                 }
 
-
-                //delete country
-                if(hm.get(zhangyi)[0] == hm.get(moveSequence.charAt(0))[0]) { // Same column case
-                    if (hm.get(zhangyi)[1] > hm.get(moveSequence.charAt(0))[1]) { // Up direction
-                        for (int i = 0; i < countries.length(); i++) {
-                            char a = countries.charAt(i);
-                            if (hm.get(a)[1] >= hm.get(moveSequence.charAt(0))[1] &&
-                                    hm.get(a)[0] == hm.get(moveSequence.charAt(0))[0] &&
-                                    hm.get(a)[1] < hm.get(zhangyi)[1]) {
-                                for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
-                                    if (setupbuilder.charAt(j) == a) {
-                                        setupbuilder.delete(j - 2,j + 1);
-                                    }
-                                }
-                            }
-                        }
-                    } else if (hm.get(zhangyi)[1] < hm.get(moveSequence.charAt(0))[1]) { // Down direction
-                        for (int i = 0; i < countries.length(); i++) {
-                            char a = countries.charAt(i);
-                            if (hm.get(a)[1] <= hm.get(moveSequence.charAt(0))[1] &&
-                                    hm.get(a)[0] == hm.get(moveSequence.charAt(0))[0] &&
-                                    hm.get(a)[1] > hm.get(zhangyi)[1]) {
-                                for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
-                                    if (setupbuilder.charAt(j) == a) {
-                                        setupbuilder.delete(j - 2, j + 1);
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-
-                }else if (hm.get(zhangyi)[1] == hm.get(moveSequence.charAt(0))[1]){ // Same row case
-                    if(hm.get(zhangyi)[0] > hm.get(moveSequence.charAt(0))[0]){ // Right direction
-                        for(int i = 0; i < countries.length(); i++){
-                            char a = countries.charAt(i);
-                            if (hm.get(a)[0] >= hm.get(moveSequence.charAt(0))[0] &&
-                                    hm.get(a)[1] == hm.get(moveSequence.charAt(0))[1] &&
-                                    hm.get(a)[0] < hm.get(zhangyi)[0]) {
-                                for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
-                                    if (setupbuilder.charAt(j) == a) {
-                                        setupbuilder.delete(j - 2, j + 1);
-                                    }
-                                }
-                            }
-
-                        }
-                    }else if(hm.get(zhangyi)[0] < hm.get(moveSequence.charAt(0))[0]){ // Left direction
-                        for(int i = 0; i < countries.length(); i++){
-                            char a = countries.charAt(i);
-                            if (hm.get(a)[0] <= hm.get(moveSequence.charAt(0))[0] &&
-                                    hm.get(a)[1] == hm.get(moveSequence.charAt(0))[1] &&
-                                    hm.get(a)[0] > hm.get(zhangyi)[0]) {
-                                for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
-                                    if (setupbuilder.charAt(j) == a) {
-                                        setupbuilder.delete(j - 2, j + 1);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                //update the placement string
-                setup = setupbuilder.toString();
-                setup += "z9" + moveSequence.charAt(0);
+                setup = updateBoard(setup, moveSequence);
                 moveSequence = moveSequence.substring(1,moveSequence.length());
-                boardPlacement = setup; // update the board information
                 return isMoveSequenceValid(setup,moveSequence);// recursively check
             }else{
                 return false;
             }
         }
+    }
+
+    public static String updateBoard(String setup, String moveSequence) {
+        StringBuilder setupbuilder = new StringBuilder(setup);
+        char country = ' ';
+        for(int i = 2; i < setup.length(); i += 3){ // Get the country of moveSequence
+            if(setup.charAt(i) == moveSequence.charAt(0)){
+                country = setup.charAt(i - 2);
+            }
+        }
+
+        String countries = "";
+        for(int i = 0; i < setup.length(); i += 3 ){ // Get all the locations of the country above
+            if(setup.charAt(i) == country){
+                countries = countries + String.valueOf(setup.charAt(i + 2));
+            }
+        }
+
+        char zhangyi = ' ';
+        for(int i = 0; i < setup.length(); i++){ // Get the location of Zhangyi and move the location of Zhangyi
+            if (setup.charAt(i) == 'z'){
+                zhangyi = setup.charAt(i + 2);
+                setupbuilder.replace(i + 2,i + 3,String.valueOf(moveSequence.charAt(0)));
+            }
+        }
+
+        //delete country
+        if(hm.get(zhangyi)[0] == hm.get(moveSequence.charAt(0))[0]) { // Same column case
+            if (hm.get(zhangyi)[1] > hm.get(moveSequence.charAt(0))[1]) { // Up direction
+                for (int i = 0; i < countries.length(); i++) {
+                    char a = countries.charAt(i);
+                    if (hm.get(a)[1] >= hm.get(moveSequence.charAt(0))[1] &&
+                            hm.get(a)[0] == hm.get(moveSequence.charAt(0))[0] &&
+                            hm.get(a)[1] < hm.get(zhangyi)[1]) {
+                        for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
+                            if (setupbuilder.charAt(j) == a) {
+                                setupbuilder.delete(j - 2,j + 1);
+                            }
+                        }
+                    }
+                }
+            } else if (hm.get(zhangyi)[1] < hm.get(moveSequence.charAt(0))[1]) { // Down direction
+                for (int i = 0; i < countries.length(); i++) {
+                    char a = countries.charAt(i);
+                    if (hm.get(a)[1] <= hm.get(moveSequence.charAt(0))[1] &&
+                            hm.get(a)[0] == hm.get(moveSequence.charAt(0))[0] &&
+                            hm.get(a)[1] > hm.get(zhangyi)[1]) {
+                        for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
+                            if (setupbuilder.charAt(j) == a) {
+                                setupbuilder.delete(j - 2, j + 1);
+                            }
+                        }
+                    }
+
+                }
+            }
+
+        }else if (hm.get(zhangyi)[1] == hm.get(moveSequence.charAt(0))[1]){ // Same row case
+            if(hm.get(zhangyi)[0] > hm.get(moveSequence.charAt(0))[0]){ // Right direction
+                for(int i = 0; i < countries.length(); i++){
+                    char a = countries.charAt(i);
+                    if (hm.get(a)[0] >= hm.get(moveSequence.charAt(0))[0] &&
+                            hm.get(a)[1] == hm.get(moveSequence.charAt(0))[1] &&
+                            hm.get(a)[0] < hm.get(zhangyi)[0]) {
+                        for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
+                            if (setupbuilder.charAt(j) == a) {
+                                setupbuilder.delete(j - 2, j + 1);
+                            }
+                        }
+                    }
+
+                }
+            }else if(hm.get(zhangyi)[0] < hm.get(moveSequence.charAt(0))[0]){ // Left direction
+                for(int i = 0; i < countries.length(); i++){
+                    char a = countries.charAt(i);
+                    if (hm.get(a)[0] <= hm.get(moveSequence.charAt(0))[0] &&
+                            hm.get(a)[1] == hm.get(moveSequence.charAt(0))[1] &&
+                            hm.get(a)[0] > hm.get(zhangyi)[0]) {
+                        for (int j = setupbuilder.length() - 1; j > 0 ; j -= 3) {
+                            if (setupbuilder.charAt(j) == a) {
+                                setupbuilder.delete(j - 2, j + 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //update the placement string
+        setup = setupbuilder.toString();
+        setup += "z9" + moveSequence.charAt(0);
+        return setup;
     }
 
 
@@ -438,11 +446,17 @@ public class WarringStatesGame {
     public static char generateMove(String placement) {
         // FIXME Task 10: generate a legal move
         // generate all legal moves for zhang yi
+        //这个generate all legal move请帮我写在一个新的method里面因为后面的task会单独用到，谢谢你~~ ——Sukai
+        //新的method 已经帮你创好了叫generateAllLegalMove —— Sukai
 
         // randomly choose one legal move
 
         //for task 12, adjust generateMove to return a valuable move.
 
         return '\0';
+    }
+
+    public static ArrayList<Character> generateAllLegalMove(String placement) {
+        return null;
     }
 }

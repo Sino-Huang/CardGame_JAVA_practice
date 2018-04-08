@@ -1,5 +1,6 @@
 package comp1110.ass2.gui;
 
+import comp1110.ass2.GameState;
 import comp1110.ass2.Player;
 import comp1110.ass2.WarringStatesGame;
 import javafx.animation.FadeTransition;
@@ -16,7 +17,9 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class Game extends Application {
@@ -27,8 +30,8 @@ public class Game extends Application {
     private VBox scorePane= new VBox();
     private GridPane mainBody = new GridPane();
     private BorderPane root = new BorderPane(mainBody, topControl, scorePane, null, null);
-    // the board information is in the WarringStatesGame class
-
+    private GameState gameState = null;
+    private int numberOfPlayer = gameState.numOfPlayer;
 
     // FIXME Task 9: Implement a basic playable Warring States game in JavaFX
         // input numbers of players
@@ -75,12 +78,7 @@ public class Game extends Application {
 
     // FIXME Task 11: Allow players of your Warring States game to play against your simple agent
     public char simpleMove (){ // may directly use task 10's method with updating the board
-        char output = WarringStatesGame.generateMove(WarringStatesGame.boardPlacement); //simple move
-        //update current board (done when using generateMove
-        //update Player information
-
-        //return
-        return output;
+        return WarringStatesGame.generateMove(gameState.boardPlacement); //simple move
     }
         // simply return a move
 
@@ -88,10 +86,75 @@ public class Game extends Application {
 
     // get a value system
 
-
     // use ab pruning to find highest value move
-    public char alphaBetaPruning (int node, int depth, double alpha, double beta, Player maximizingPlayer){ //use alpha beta pruning to get intelligent move
-        return '\0';
+    public double alphaBetaPruning (GameState node, int depth, double alpha, double beta, int playerTurn){
+        //use alpha beta pruning to get intelligent move
+        double value = 0;
+        List<GameState> childNode = new ArrayList<>();
+        GameState currentState = node;
+        ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(currentState.boardPlacement);
+        for (Character move : allPossibleMove) {
+            childNode.add(new GameState(WarringStatesGame.updateBoard(currentState.boardPlacement, String.valueOf(move)),
+                    updatePlayers(currentState, move), (currentState.Playerturn + 1) % numberOfPlayer, numberOfPlayer)); // get all possible child game state
+        }
+        if (depth == 0) {
+            return getHeuristicValue(currentState,numberOfPlayer); //reach the leaf and return the heuristic value, assume AI is the last number of player
+        }
+        if (playerTurn == numberOfPlayer) { // check whether it is the AI's turn
+            value = -9999;
+            for (GameState cnode : childNode) {
+                value = Math.max(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn + 1) % numberOfPlayer));
+                alpha = Math.max(value, alpha);
+                if (alpha >= beta) {
+                    break; //pruning
+                }
+            }
+            return value;
+
+
+        } else { //if it is not AI's turn, assume all human player is trying to play against AI
+            value = 9999;
+            for (GameState cnode : childNode) {
+                value = Math.min(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn + 1) % numberOfPlayer));
+                beta = Math.min(value, beta);
+                if (alpha >= beta) {
+                    break; //pruning
+                }
+            }
+            return value;
+        }
+    }
+
+    public char smartMove() {
+        List<GameState> childNode = new ArrayList<>();
+        ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(gameState.boardPlacement);
+        for (Character move : allPossibleMove) { // get the next level of nodes for alpha-beta pruning
+            childNode.add(new GameState(WarringStatesGame.updateBoard(gameState.boardPlacement, String.valueOf(move)),
+                    updatePlayers(gameState, move), (gameState.Playerturn + 1) % numberOfPlayer, numberOfPlayer));
+        }
+        List<Double> alphabetaScore = new ArrayList<>();
+        for (GameState child : childNode) {
+            alphabetaScore.add(alphaBetaPruning(child, 5, -9999, 9999, 1)); // the init alphabeta pruning method's playerTurn is 1.
+        }
+        double max = -9999;
+        int count = 0;
+        for (int i = 0; i < alphabetaScore.size(); i++) { // find the maximum score for AI
+            if (alphabetaScore.get(i) > max) {
+                max = alphabetaScore.get(i);
+                count = i;
+            }
+        }
+        return allPossibleMove.get(count); // return the corresponding move for AI
+    }
+
+    public double getHeuristicValue(GameState gameState, int playerTurn) {
+        // calculate the heuristic value of the current state using its score
+        return 0;
+    }
+
+    public ArrayList<Player> updatePlayers(GameState gameState, char move) {
+
+        return null;
     }
 
     @Override
