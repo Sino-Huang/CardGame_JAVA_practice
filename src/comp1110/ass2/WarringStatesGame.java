@@ -9,6 +9,7 @@ import java.util.Set;
  * This class provides the text interface for the Warring States game
  */
 public class WarringStatesGame {
+    public static String boardPlacement = ""; // this is the board information for task 9 and above
     private static ArrayList<String> validCombination = new ArrayList<>();
 
     /**
@@ -358,6 +359,7 @@ public class WarringStatesGame {
                 setup = setupbuilder.toString();
                 setup += "z9" + moveSequence.charAt(0);
                 moveSequence = moveSequence.substring(1,moveSequence.length());
+                boardPlacement = setup; // update the board information
                 return isMoveSequenceValid(setup,moveSequence);// recursively check
             }else{
                 return false;

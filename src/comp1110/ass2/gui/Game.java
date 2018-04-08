@@ -1,6 +1,7 @@
 package comp1110.ass2.gui;
 
 import comp1110.ass2.Player;
+import comp1110.ass2.WarringStatesGame;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -26,10 +27,11 @@ public class Game extends Application {
     private VBox scorePane= new VBox();
     private GridPane mainBody = new GridPane();
     private BorderPane root = new BorderPane(mainBody, topControl, scorePane, null, null);
+    // the board information is in the WarringStatesGame class
 
 
     // FIXME Task 9: Implement a basic playable Warring States game in JavaFX
-    public void inputPlayer(){ // input numbers of players
+        // input numbers of players
         // start a game
         // input numbers of player
         // whether need a robot
@@ -39,62 +41,11 @@ public class Game extends Application {
         // update the board and flags
         // next player's move
 
-    }
-
-    // FIXME Task 11: Allow players of your Warring States game to play against your simple agent
-    public char simpleMove (){ // may directly use task 10's method
-        return '\0';
-    }
-        // simply return a move
-
-    // FIXME Task 12: Integrate a more advanced opponent into your game
-
-    // get a value system
-
-
-    // use ab pruning to find highest value move
-    public char alphaBetaPruning (int node, int depth, int alpha, int beta, Player maximizingPlayer){ //use alpha beta pruning to get intelligent move
-        return '\0';
-    }
-
-    @Override
-    public void start(Stage primaryStage) throws Exception { //setup start stage
-        this.primaryStage = primaryStage;
-        ImageView image = new ImageView(new Image(getClass().getResourceAsStream("assets/startimage.png")));
-        StackPane root = new StackPane();
-        primaryStage.setTitle("Start game");
-
-        root.getChildren().add(image);
-        FadeTransition fadeTransition = new FadeTransition(Duration.millis(2000), root); // add fade animation
-        fadeTransition.setFromValue(1);
-        fadeTransition.setToValue(0);
-
-
-        Button startButton = new Button();
-        startButton.setText("Start");
-        StackPane.setAlignment(startButton,Pos.BOTTOM_CENTER);
-        Timeline loadToPreparation = new Timeline(new KeyFrame(Duration.millis(2000), (e) -> { // create timeline so as to wait for animation end
-            preparation();
-        }));
-
-        startButton.setOnAction((e)->{ // click start button to go to the preparation stage
-            fadeTransition.play();
-            loadToPreparation.play(); // wait for animation to end
-        });
-        root.getChildren().add(startButton);
-
-        image.fitHeightProperty().bind(root.heightProperty().divide(1.2));
-        image.setPreserveRatio(true);
-        Scene primaryscene = new Scene(root, BOARD_WIDTH, BOARD_HEIGHT);
-        this.primaryStage.setScene(primaryscene);
-        this.primaryStage.show();
-    }
-
-    void preparation() { // preparation stage to store necessary information
+    public void inputPlayer() { // preparation stage to store necessary information
         HashMap<String, Integer> output = new HashMap<>();
         HBox numPlayer = new HBox(); // number of player box
         Label numPlayerLabel = new Label("Num of Player: ");
-        TextField numPlayerText = new TextField();
+        ChoiceBox numPlayerText = new ChoiceBox(FXCollections.observableArrayList("2", "3", "4"));
         numPlayer.getChildren().addAll(numPlayerLabel, numPlayerText);
         numPlayer.setAlignment(Pos.BASELINE_CENTER);
 
@@ -121,6 +72,62 @@ public class Game extends Application {
 
         primaryStage.setScene(scene);
     }
+
+    // FIXME Task 11: Allow players of your Warring States game to play against your simple agent
+    public char simpleMove (){ // may directly use task 10's method with updating the board
+        char output = WarringStatesGame.generateMove(WarringStatesGame.boardPlacement); //simple move
+        //update current board (done when using generateMove
+        //update Player information
+
+        //return
+        return output;
+    }
+        // simply return a move
+
+    // FIXME Task 12: Integrate a more advanced opponent into your game
+
+    // get a value system
+
+
+    // use ab pruning to find highest value move
+    public char alphaBetaPruning (int node, int depth, double alpha, double beta, Player maximizingPlayer){ //use alpha beta pruning to get intelligent move
+        return '\0';
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception { //setup start stage
+        this.primaryStage = primaryStage;
+        ImageView image = new ImageView(new Image(getClass().getResourceAsStream("assets/startimage.png")));
+        StackPane root = new StackPane();
+        primaryStage.setTitle("Start game");
+
+        root.getChildren().add(image);
+        FadeTransition fadeTransition = new FadeTransition(Duration.millis(2000), root); // add fade animation
+        fadeTransition.setFromValue(1);
+        fadeTransition.setToValue(0);
+
+
+        Button startButton = new Button();
+        startButton.setText("Start");
+        StackPane.setAlignment(startButton,Pos.BOTTOM_CENTER);
+        Timeline loadToPreparation = new Timeline(new KeyFrame(Duration.millis(2000), (e) -> { // create timeline so as to wait for animation end
+            inputPlayer();
+        }));
+
+        startButton.setOnAction((e)->{ // click start button to go to the preparation stage
+            fadeTransition.play();
+            loadToPreparation.play(); // wait for animation to end
+        });
+        root.getChildren().add(startButton);
+
+        image.fitHeightProperty().bind(root.heightProperty().divide(1.2));
+        image.setPreserveRatio(true);
+        Scene primaryscene = new Scene(root, BOARD_WIDTH, BOARD_HEIGHT);
+        this.primaryStage.setScene(primaryscene);
+        this.primaryStage.show();
+    }
+
+
 }
 
 
