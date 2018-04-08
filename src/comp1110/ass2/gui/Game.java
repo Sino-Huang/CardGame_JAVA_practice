@@ -31,7 +31,6 @@ public class Game extends Application {
     private GridPane mainBody = new GridPane();
     private BorderPane root = new BorderPane(mainBody, topControl, scorePane, null, null);
     private GameState gameState = null;
-    private int numberOfPlayer = gameState.numOfPlayer;
 
     // FIXME Task 9: Implement a basic playable Warring States game in JavaFX
         // input numbers of players
@@ -65,6 +64,13 @@ public class Game extends Application {
         AILevel.setAlignment(Pos.BASELINE_CENTER);
 
         Button nextButton = new Button("Next");
+        nextButton.setOnAction((e)->{
+            try {
+                start(primaryStage);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
 
         VBox root = new VBox(); // combine all box and button together
         root.getChildren().addAll(numPlayer, needAI, AILevel, nextButton);
@@ -95,15 +101,15 @@ public class Game extends Application {
         ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(currentState.boardPlacement);
         for (Character move : allPossibleMove) {
             childNode.add(new GameState(WarringStatesGame.updateBoard(currentState.boardPlacement, String.valueOf(move)),
-                    updatePlayers(currentState, move), (currentState.Playerturn + 1) % numberOfPlayer, numberOfPlayer)); // get all possible child game state
+                    updatePlayers(currentState, move), (currentState.Playerturn + 1) % gameState.numOfPlayer, gameState.numOfPlayer)); // get all possible child game state
         }
         if (depth == 0) {
-            return getHeuristicValue(currentState,numberOfPlayer); //reach the leaf and return the heuristic value, assume AI is the last number of player
+            return getHeuristicValue(currentState, gameState.numOfPlayer); //reach the leaf and return the heuristic value, assume AI is the last number of player
         }
-        if (playerTurn == numberOfPlayer) { // check whether it is the AI's turn
+        if (playerTurn == gameState.numOfPlayer) { // check whether it is the AI's turn
             value = -9999;
             for (GameState cnode : childNode) {
-                value = Math.max(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn + 1) % numberOfPlayer));
+                value = Math.max(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn + 1) % gameState.numOfPlayer));
                 alpha = Math.max(value, alpha);
                 if (alpha >= beta) {
                     break; //pruning
@@ -115,7 +121,7 @@ public class Game extends Application {
         } else { //if it is not AI's turn, assume all human player is trying to play against AI
             value = 9999;
             for (GameState cnode : childNode) {
-                value = Math.min(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn + 1) % numberOfPlayer));
+                value = Math.min(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn + 1) % gameState.numOfPlayer));
                 beta = Math.min(value, beta);
                 if (alpha >= beta) {
                     break; //pruning
@@ -130,7 +136,7 @@ public class Game extends Application {
         ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(gameState.boardPlacement);
         for (Character move : allPossibleMove) { // get the next level of nodes for alpha-beta pruning
             childNode.add(new GameState(WarringStatesGame.updateBoard(gameState.boardPlacement, String.valueOf(move)),
-                    updatePlayers(gameState, move), (gameState.Playerturn + 1) % numberOfPlayer, numberOfPlayer));
+                    updatePlayers(gameState, move), (gameState.Playerturn + 1) % gameState.numOfPlayer, gameState.numOfPlayer));
         }
         List<Double> alphabetaScore = new ArrayList<>();
         for (GameState child : childNode) {
