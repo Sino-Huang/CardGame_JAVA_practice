@@ -47,6 +47,9 @@ public class Viewer extends Application {
         if (placement.equals("test")) {
             placement = testplacement; //for testing
         }
+        if (placement.equals("random")) {
+            placement = Game.createBoard();
+        }
         centreBody.setPadding(new Insets(20, 10, 20, 10)); // set padding for the pane
 
         //check whether the placement is a valid placement
@@ -66,7 +69,7 @@ public class Viewer extends Application {
             String kingdom = String.valueOf(placement.substring(i,i+2));
             String kingdomname = kingdom.toUpperCase();
             ImageView image = null;
-            for (Characters characters : Characters.values()) {
+            for (Cards characters : Cards.values()) {
                 if (kingdomname.equals(characters.name())) {
                     image = characters.imageView;
                 }

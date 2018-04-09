@@ -18,7 +18,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -32,6 +32,25 @@ public class Game extends Application {
     private BorderPane root = new BorderPane(mainBody, topControl, scorePane, null, null);
     private GameState gameState = null;
 
+    static String createBoard() {
+        List<String> positionList = new ArrayList<>();
+        for (int i = 'A'; i <= 'Z'; i++) {
+            positionList.add(String.valueOf((char) i));
+        }
+        for (int i = 0; i < 10; i++) {
+            positionList.add(String.valueOf(i));
+        }
+
+        Collections.shuffle(positionList);
+        int count = 0;
+        String output = "";
+        for (String po : positionList) {
+            output += Cards.values()[count].name().toLowerCase() + po;
+            count += 1;
+        }
+        return output;
+    }
+
     // FIXME Task 9: Implement a basic playable Warring States game in JavaFX
         // input numbers of players
         // start a game
@@ -44,10 +63,10 @@ public class Game extends Application {
         // next player's move
 
     public void inputPlayer() { // preparation stage to store necessary information
-        HashMap<String, Integer> output = new HashMap<>();
         HBox numPlayer = new HBox(); // number of player box
         Label numPlayerLabel = new Label("Num of Player: ");
         ChoiceBox numPlayerText = new ChoiceBox(FXCollections.observableArrayList("2", "3", "4"));
+        numPlayerText.getSelectionModel().selectFirst(); // set default value
         numPlayer.getChildren().addAll(numPlayerLabel, numPlayerText);
         numPlayer.setAlignment(Pos.BASELINE_CENTER);
 
@@ -60,16 +79,20 @@ public class Game extends Application {
         HBox AILevel = new HBox(); // AI level box
         Label AILevelLabel = new Label("AI Level: ");
         ChoiceBox choiceBox = new ChoiceBox(FXCollections.observableArrayList("Easy", "Hard"));
+        choiceBox.getSelectionModel().selectFirst(); // set default value for select box so that is will not have null exception
         AILevel.getChildren().addAll(AILevelLabel, choiceBox);
         AILevel.setAlignment(Pos.BASELINE_CENTER);
 
         Button nextButton = new Button("Next");
         nextButton.setOnAction((e)->{
-            try {
-                start(primaryStage);
-            } catch (Exception e1) {
-                e1.printStackTrace();
+            int numOfPlayer = Integer.valueOf((String) numPlayerText.getValue());
+            boolean whetherneedAI = needAICheck.isSelected();
+            boolean whetherSmartAI = true;
+            if (choiceBox.getValue().equals("Easy")) {
+                whetherSmartAI = false;
             }
+            gameState = new GameState(createBoard(), GameState.initPlayers(numOfPlayer, whetherneedAI, whetherSmartAI), 1, numOfPlayer, whetherneedAI, whetherSmartAI); // setup the initial gameState
+            System.out.println(gameState);
         });
 
         VBox root = new VBox(); // combine all box and button together
@@ -101,7 +124,7 @@ public class Game extends Application {
         ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(currentState.boardPlacement);
         for (Character move : allPossibleMove) {
             childNode.add(new GameState(WarringStatesGame.updateBoard(currentState.boardPlacement, String.valueOf(move)),
-                    updatePlayers(currentState, move), (currentState.Playerturn + 1) % gameState.numOfPlayer, gameState.numOfPlayer)); // get all possible child game state
+                    updatePlayers(currentState, move), (currentState.playerturn + 1) % gameState.numOfPlayer, gameState.numOfPlayer, currentState.boardPlacement)); // get all possible child game state
         }
         if (depth == 0) {
             return getHeuristicValue(currentState, gameState.numOfPlayer); //reach the leaf and return the heuristic value, assume AI is the last number of player
@@ -136,7 +159,7 @@ public class Game extends Application {
         ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(gameState.boardPlacement);
         for (Character move : allPossibleMove) { // get the next level of nodes for alpha-beta pruning
             childNode.add(new GameState(WarringStatesGame.updateBoard(gameState.boardPlacement, String.valueOf(move)),
-                    updatePlayers(gameState, move), (gameState.Playerturn + 1) % gameState.numOfPlayer, gameState.numOfPlayer));
+                    updatePlayers(gameState, move), (gameState.playerturn + 1) % gameState.numOfPlayer, gameState.numOfPlayer, gameState.boardPlacement));
         }
         List<Double> alphabetaScore = new ArrayList<>();
         for (GameState child : childNode) {
