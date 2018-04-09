@@ -8,6 +8,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -29,7 +30,6 @@ public class Game extends Application {
     private HBox topControl = new HBox();
     private VBox scorePane= new VBox();
     private GridPane mainBody = new GridPane();
-    private BorderPane root = new BorderPane(mainBody, topControl, scorePane, null, null);
     private GameState gameState = null;
 
     static String createBoard() {
@@ -85,6 +85,12 @@ public class Game extends Application {
 
         Button nextButton = new Button("Next");
         nextButton.setOnAction((e)->{
+            // clear the previous element of the layout
+            scorePane.getChildren().clear();
+            topControl.getChildren().clear();
+            mainBody.getChildren().clear();
+
+
             int numOfPlayer = Integer.valueOf((String) numPlayerText.getValue());
             boolean whetherneedAI = needAICheck.isSelected();
             boolean whetherSmartAI = true;
@@ -93,6 +99,7 @@ public class Game extends Application {
             }
             gameState = new GameState(createBoard(), GameState.initPlayers(numOfPlayer, whetherneedAI, whetherSmartAI), 1, numOfPlayer, whetherneedAI, whetherSmartAI); // setup the initial gameState
             System.out.println(gameState);
+            gameBody();
         });
 
         VBox root = new VBox(); // combine all box and button together
@@ -103,6 +110,114 @@ public class Game extends Application {
         Scene scene = new Scene(root, BOARD_WIDTH, BOARD_HEIGHT);
 
         primaryStage.setScene(scene);
+    }
+
+    public void gameBody() {
+        BorderPane root = new BorderPane(mainBody, topControl, scorePane, null, null);
+        Button restart = new Button("Restart"); // setup top control panel
+        restart.setOnAction((e)->{
+            inputPlayer();
+        });
+
+        Button previousMov = new Button("<- Previous");
+        previousMov.setOnAction((e)->{
+            makePlacement(gameState.previousPlacement);
+        });
+        Button statusCheck = new Button("Status");
+        statusCheck.setOnAction((e)->{
+            System.out.println(gameState);
+        });
+
+        topControl.getChildren().addAll(restart, previousMov, statusCheck);
+
+        makePlacement(gameState.boardPlacement); // setup body panel
+
+
+        Scene scene = new Scene(root, BOARD_WIDTH, BOARD_HEIGHT);
+        primaryStage.setScene(scene);
+    }
+
+    void makePlacement(String placement) {
+        if (!placement.equals("")) {
+            mainBody.getChildren().clear();
+            mainBody.setPadding(new Insets(20, 10, 20, 10)); // set padding for the pane
+
+            //check whether the placement is a valid placement
+
+            String emptyindex = getEmptySpace(placement);
+            for (int i = 0; i < emptyindex.length(); i++) {  // fill up the empty space for the pane
+                ImageView image = new ImageView(new Image(getClass().getResourceAsStream("assets/empty.png")));
+                String index = getIndex(emptyindex.charAt(i));
+                GridPane.setConstraints(image, index.charAt(0), index.charAt(1));
+                GridPane.setMargin(image, new Insets(10, 0, 0, 10)); // set margins for each image
+                image.fitHeightProperty().bind(primaryStage.heightProperty().divide(7.5)); // resize the image to fit the height of the stage
+                image.setPreserveRatio(true); // preserve ratio
+                mainBody.getChildren().add(image);
+            }
+
+            for (int i = 0; i < placement.length(); i += 3) {    // setup the imageView of the character
+                String kingdom = String.valueOf(placement.substring(i,i+2));
+                String kingdomname = kingdom.toUpperCase();
+                ImageView image = null;
+                for (Cards characters : Cards.values()) {
+                    if (kingdomname.equals(characters.name())) {
+                        image = characters.imageView;
+                    }
+                }
+                String index = getIndex(placement.charAt(i + 2));
+                GridPane.setConstraints(image, index.charAt(0), index.charAt(1));  // set the index of the character
+                GridPane.setMargin(image, new Insets(10, 0, 0, 10)); // set margins for each image
+                image.fitHeightProperty().bind(primaryStage.heightProperty().divide(7.5)); // resize the image to fit the height of the stage
+                image.setPreserveRatio(true); // preserve ratio
+                mainBody.getChildren().add(image);
+            }
+        }
+    }
+
+    String getEmptySpace(String placement) {
+        String fullIndex = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        String existingIndex = "";
+        String emptyIndex = "";
+        for (int i = 0; i < placement.length(); i += 3) {
+            existingIndex += placement.charAt(i + 2);
+        }
+        for (int i = 0; i < fullIndex.length(); i++) {
+            if (existingIndex.indexOf(fullIndex.charAt(i)) == -1) {
+                emptyIndex += fullIndex.charAt(i);
+            }
+        }
+        return emptyIndex;
+    }
+
+    String getIndex(char index) { // get index string from the third char of the character card placement string
+        String firstrow = "4YSMGA";
+        String secondrow = "5ZTNHB";
+        String thirdrow = "60UOIC";
+        String fourthrow = "71VPJD";
+        String fifthrow = "82WQKE";
+        String sixthrow = "93XRLF";
+
+        for (int i = 0; i < 6; i++) {
+            if (index == firstrow.charAt(i)) {
+                return i + "0";
+            }
+            if (index == secondrow.charAt(i)) {
+                return i + "1";
+            }
+            if (index == thirdrow.charAt(i)) {
+                return i + "2";
+            }
+            if (index == fourthrow.charAt(i)) {
+                return i + "3";
+            }
+            if (index == fifthrow.charAt(i)) {
+                return i + "4";
+            }
+            if (index == sixthrow.charAt(i)) {
+                return i + "5";
+            }
+        }
+        return "error";
     }
 
     // FIXME Task 11: Allow players of your Warring States game to play against your simple agent
