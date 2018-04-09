@@ -10,11 +10,14 @@ import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -98,7 +101,6 @@ public class Game extends Application {
                 whetherSmartAI = false;
             }
             gameState = new GameState(createBoard(), GameState.initPlayers(numOfPlayer, whetherneedAI, whetherSmartAI), 1, numOfPlayer, whetherneedAI, whetherSmartAI); // setup the initial gameState
-            System.out.println(gameState);
             gameBody();
         });
 
@@ -112,6 +114,22 @@ public class Game extends Application {
         primaryStage.setScene(scene);
     }
 
+    public void statusBox() { // status box for checking the status
+        Stage stage = new Stage();
+        Label label = new Label(gameState.toString());
+        label.setWrapText(true);
+        Button button = new Button("OK");
+        button.setOnAction((e) -> {
+            stage.close();
+        });
+        VBox root = new VBox(label,button);
+        root.setAlignment(Pos.CENTER);
+        root.setMargin(label, new Insets(15, 15, 15, 15));
+        Scene scene = new Scene(root, 500, 500);
+        stage.setScene(scene);
+        stage.showAndWait();
+    }
+
     public void gameBody() {
         BorderPane root = new BorderPane(mainBody, topControl, scorePane, null, null);
         Button restart = new Button("Restart"); // setup top control panel
@@ -120,17 +138,44 @@ public class Game extends Application {
         });
 
         Button previousMov = new Button("<- Previous");
-        previousMov.setOnAction((e)->{
+        previousMov.setOnMousePressed((e)->{
             makePlacement(gameState.previousPlacement);
         });
+        previousMov.setOnMouseReleased((e) -> {
+            makePlacement(gameState.boardPlacement);
+        });
+
         Button statusCheck = new Button("Status");
         statusCheck.setOnAction((e)->{
-            System.out.println(gameState);
+            statusBox();
         });
 
         topControl.getChildren().addAll(restart, previousMov, statusCheck);
 
         makePlacement(gameState.boardPlacement); // setup body panel
+
+        for (int i = 0; i < gameState.numOfPlayer; i++) { // setup score panel
+            VBox playerBox = new VBox();
+            Label label = new Label(gameState.players.get(i).name);
+            label.setFont(Font.font("Verdana", FontWeight.EXTRA_BOLD, 20));
+            VBox currentCard = new VBox();
+            VBox currentFlag = new VBox();
+            Label currentCardLabel = new Label("Supporters");
+            Label currentFlagLabel = new Label("Alliance country");
+            ImageView currentCardImage = new ImageView(new Image(getClass().getResourceAsStream("assets/A7.png")));
+            ImageView currentFlagImage = new ImageView(new Image(getClass().getResourceAsStream("assets/A7.png")));
+            currentCardImage.fitHeightProperty().bind(primaryStage.heightProperty().divide(8));
+            currentCardImage.setPreserveRatio(true);
+            currentFlagImage.fitHeightProperty().bind(primaryStage.heightProperty().divide(8));
+            currentFlagImage.setPreserveRatio(true);
+            currentCard.getChildren().addAll(currentCardLabel, currentCardImage);
+            currentFlag.getChildren().addAll(currentFlagLabel, currentFlagImage);
+            HBox imageBox = new HBox(currentCard, currentFlag);
+            HBox.setMargin(currentCard, new Insets(0, 20, 0, 0));
+            playerBox.getChildren().addAll(label, imageBox);
+            scorePane.getChildren().add(playerBox);
+            scorePane.setMargin(playerBox, new Insets(10, 0, 10, 0));
+        }
 
 
         Scene scene = new Scene(root, BOARD_WIDTH, BOARD_HEIGHT);

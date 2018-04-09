@@ -14,26 +14,32 @@ public class GameState {
     @Override
     public String toString() {
         if (whetherAI == true) {
-            return "GameState{" +
-                    "boardPlacement='" + boardPlacement + '\'' +
-                    ", \nplayers=" + players +
-                    ", \nplayerturn=" + playerturn +
-                    ", \nnumOfPlayer=" + numOfPlayer +
-                    ", \nwhetherAI=" + whetherAI +
+            return "GameState\n" +
+                    "boardPlacement =\n'" + boardPlacement + '\'' +
+                    ", \n\n" + playerString() +
+                    " \nWho's turn = No." + playerturn +
+                    ", \nnumOfPlayer = " + numOfPlayer +
+                    ", \nwhetherAI = " + whetherAI +
                     ", \nwhetherSmartAI=" + whetherSmartAI +
-                    ", \npreviousPlacement='" + previousPlacement + '\'' +
-                    '}';
+                    ", \npreviousPlacement='" + previousPlacement + '\'';
         } else {
-            return "GameState{" +
-                    "boardPlacement='" + boardPlacement + '\'' +
-                    ", \nplayers=" + players +
-                    ", \nplayerturn=" + playerturn +
-                    ", \nnumOfPlayer=" + numOfPlayer +
-                    ", \nwhetherAI=" + whetherAI +
-                    ", \npreviousPlacement='" + previousPlacement + '\'' +
-                    '}';
+            return "GameState\n" +
+                    "boardPlacement =\n'" + boardPlacement + '\'' +
+                    ", \n\n" + playerString() +
+                    " \nWho's turn = No." + playerturn +
+                    ", \nnumOfPlayer = " + numOfPlayer +
+                    ", \nwhetherAI = " + whetherAI +
+                    ", \npreviousPlacement='" + previousPlacement + '\'';
         }
 
+    }
+
+    public String playerString() {
+        String output = "";
+        for (int i = 0; i < players.size(); i++) {
+            output += players.get(i).toString() + "\n";
+        }
+        return output;
     }
 
 
