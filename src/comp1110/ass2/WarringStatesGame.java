@@ -457,6 +457,10 @@ public class WarringStatesGame {
     }
 
     public static ArrayList<Character> generateAllLegalMove(String placement) {
-        return null;
+        //TODO
+        ArrayList<Character> output = new ArrayList<>();
+        output.add('a');
+        return output;
     }
+
 }

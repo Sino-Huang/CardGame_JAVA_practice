@@ -8,24 +8,20 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
-import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 
 public class Game extends Application {
@@ -150,6 +146,41 @@ public class Game extends Application {
         stage.showAndWait();
     }
 
+    public void endBox() {
+        Stage stage = new Stage();
+        double maxScore = -9999;
+        Player winner = null;
+        for (Player p : gameState.players) {
+            if (p.score > maxScore) {
+                maxScore = p.score;
+                winner = p;
+            }
+        }
+        Label label = new Label("The game is end! Winner is: " + winner.name);
+        Button restart = new Button("Restart");
+        restart.setOnAction(event -> {
+            stage.close();
+            inputPlayer();
+        });
+        Button close = new Button("Close");
+        close.setOnAction(event -> {
+            stage.close();
+            primaryStage.close();
+        });
+        HBox buttonGroup = new HBox(restart, close);
+        buttonGroup.setAlignment(Pos.CENTER);
+        buttonGroup.getChildren().forEach(node -> {
+            buttonGroup.setMargin(node, new Insets(5, 5, 5, 5));
+        });
+
+        VBox root = new VBox(label, buttonGroup);
+        root.setAlignment(Pos.CENTER);
+        Scene scene = new Scene(root, 300, 300);
+        stage.setTitle("End of Game");
+        stage.setScene(scene);
+        stage.showAndWait();
+    }
+
     public void gameBody() {
         BorderPane root = new BorderPane(mainBody, topControl, scorePane, null, null);
         Button restart = new Button("Restart"); // setup top control panel
@@ -179,14 +210,17 @@ public class Game extends Application {
             n.setOnMouseClicked((e)->{
                 int col = GridPane.getColumnIndex(n);
                 int row = GridPane.getRowIndex(n);
-                System.out.println(col + "," + row);
-                System.out.println(getPosition(col, row));
                 char destination = getPosition(col, row);
                 if (WarringStatesGame.isMoveLegal(gameState.boardPlacement, destination)) {
                     gameState.previousPlacement = gameState.boardPlacement;
                     gameState.boardPlacement = WarringStatesGame.updateBoard(gameState.boardPlacement, String.valueOf(destination));
                     gameState.playerturn = gameState.playerturn % gameState.numOfPlayer + 1;
-                    makePlacement(gameState.boardPlacement);
+                    makePlacement(gameState.boardPlacement); // update the board; playersTurn; previousPlacement
+                    //update the PlayerInfo
+                    gameState.players = updatePlayers(gameState, destination);
+                    //update the Score panel
+                    updateScorePanel();
+
                     //edit the font of the score panel so as to indicate who's turn
                     //remove last playerbox's style
                     scorePane.getChildren().forEach((node)->{
@@ -194,6 +228,9 @@ public class Game extends Application {
                     });
                     //set the new playerbox's style
                     scorePane.getChildren().get(gameState.playerturn - 1).setStyle("-fx-background-color: lightgray");
+                    if (WarringStatesGame.generateAllLegalMove(gameState.boardPlacement).size() == 0) {
+                        endBox();
+                    }
 
                 } else {
                     warningBox();
@@ -210,14 +247,18 @@ public class Game extends Application {
             VBox currentFlag = new VBox();
             Label currentCardLabel = new Label("Supporters");
             Label currentFlagLabel = new Label("Alliance country");
+            GridPane currentCardImageGrid = new GridPane();
             ImageView currentCardImage = new ImageView(new Image(getClass().getResourceAsStream("assets/initStatus.png")));
+            currentCardImageGrid.getChildren().add(currentCardImage);
+            GridPane currentFlagImageGrid = new GridPane();
             ImageView currentFlagImage = new ImageView(new Image(getClass().getResourceAsStream("assets/initStatus.png")));
-            currentCardImage.fitHeightProperty().bind(primaryStage.heightProperty().divide(8));
+            currentFlagImageGrid.getChildren().add(currentFlagImage);
+            currentCardImage.fitWidthProperty().bind(primaryStage.widthProperty().divide(8));
             currentCardImage.setPreserveRatio(true);
-            currentFlagImage.fitHeightProperty().bind(primaryStage.heightProperty().divide(8));
+            currentFlagImage.fitWidthProperty().bind(primaryStage.widthProperty().divide(8));
             currentFlagImage.setPreserveRatio(true);
-            currentCard.getChildren().addAll(currentCardLabel, currentCardImage);
-            currentFlag.getChildren().addAll(currentFlagLabel, currentFlagImage);
+            currentCard.getChildren().addAll(currentCardLabel, currentCardImageGrid);
+            currentFlag.getChildren().addAll(currentFlagLabel, currentFlagImageGrid);
             HBox imageBox = new HBox(currentCard, currentFlag);
             HBox.setMargin(currentCard, new Insets(0, 20, 0, 0));
             playerBox.getChildren().addAll(label, imageBox);
@@ -396,14 +437,82 @@ public class Game extends Application {
     }
 
     public double getHeuristicValue(GameState gameState, int playerTurn) {
+        //TODO
         // calculate the heuristic value of the current state using its score
         return 0;
     }
 
     public ArrayList<Player> updatePlayers(GameState gameState, char move) {
+        //TODO
 
-        return null;
+        return gameState.players;
     }
+
+    public void updateScorePanel() {
+        gameState.players.forEach(n -> {
+            updateSingleScorePanel(n);
+        });
+    }
+
+    public void updateSingleScorePanel(Player player) {
+        Node targetNode = scorePane.getChildren().get(player.position - 1);
+        if (targetNode instanceof VBox) {
+            Node imageBox = ((VBox) targetNode).getChildren().get(1);
+            if (imageBox instanceof HBox) {
+                Node currentCard = ((HBox) imageBox).getChildren().get(0);
+                Node currentFlag = ((HBox) imageBox).getChildren().get(1);
+                if (currentCard instanceof VBox && currentFlag instanceof VBox) {
+                    Node cardImageGrid = ((VBox) currentCard).getChildren().get(1);
+                    Node flagImageGrid = ((VBox) currentFlag).getChildren().get(1);
+                    if (cardImageGrid instanceof GridPane && flagImageGrid instanceof GridPane) {
+                        updateCardAndFlagImage((GridPane)cardImageGrid, player, true);
+                        updateCardAndFlagImage((GridPane)flagImageGrid, player, false);
+                    }
+                }
+            }
+        }
+    }
+
+    public void updateCardAndFlagImage(GridPane gridPane , Player player, boolean card) {
+        HashSet targetSet = null;
+        if (card) {
+            targetSet = player.cards;
+        } else {
+            targetSet = player.flags;
+        }
+        if (targetSet.size() != 0) {
+            gridPane.getChildren().clear();
+            targetSet.forEach(o -> {
+                ImageView imageView = null;
+                if (o instanceof Cards) {
+                    imageView = ((Cards) o).imageView;
+                }
+                if (o instanceof Flags) {
+                    imageView = ((Flags) o).imageView;
+                }
+                gridPane.getChildren().add(imageView);
+            });
+
+            int col = 0;
+            int row = 0;
+            int totalImage = gridPane.getChildren().size();
+            for (Node node : gridPane.getChildren()) {
+                GridPane.setConstraints(node, col, row);
+                if (col == 4) {
+                    col = 0;
+                    row += 1;
+                } else {
+                    col += 1;
+                }
+                if (node instanceof ImageView) {
+                    ((ImageView) node).fitWidthProperty().bind(primaryStage.widthProperty().divide(12));
+                }
+            }
+        }
+
+    }
+
+
 
     @Override
     public void start(Stage primaryStage) throws Exception { //setup start stage

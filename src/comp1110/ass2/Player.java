@@ -1,22 +1,12 @@
 package comp1110.ass2;
 
 import comp1110.ass2.gui.Cards;
+import comp1110.ass2.gui.Flags;
+
 
 import java.util.HashSet;
 
-enum Flags {
-    A,B,C,D,E,F,G;
 
-    private String name;
-
-    Flags() {
-        this.name = this.name();
-    }
-
-    public String getName() {
-        return name;
-    }
-}
 
 public class Player {
     public String name;
@@ -53,7 +43,7 @@ public class Player {
 
     public void setFlags(String flags) {
         for (Flags flag : Flags.values()) {
-            if (flag.getName().equals(flags)) {
+            if (flag.name().equals(flags)) {
                 this.flags.add(flag);
             }
         }
