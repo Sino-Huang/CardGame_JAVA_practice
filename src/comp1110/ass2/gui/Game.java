@@ -162,8 +162,8 @@ public class Game extends Application {
             VBox currentFlag = new VBox();
             Label currentCardLabel = new Label("Supporters");
             Label currentFlagLabel = new Label("Alliance country");
-            ImageView currentCardImage = new ImageView(new Image(getClass().getResourceAsStream("assets/A7.png")));
-            ImageView currentFlagImage = new ImageView(new Image(getClass().getResourceAsStream("assets/A7.png")));
+            ImageView currentCardImage = new ImageView(new Image(getClass().getResourceAsStream("assets/initStatus.png")));
+            ImageView currentFlagImage = new ImageView(new Image(getClass().getResourceAsStream("assets/initStatus.png")));
             currentCardImage.fitHeightProperty().bind(primaryStage.heightProperty().divide(8));
             currentCardImage.setPreserveRatio(true);
             currentFlagImage.fitHeightProperty().bind(primaryStage.heightProperty().divide(8));
