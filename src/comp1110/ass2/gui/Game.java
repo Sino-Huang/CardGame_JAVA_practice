@@ -8,6 +8,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -15,6 +16,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -127,6 +129,24 @@ public class Game extends Application {
         root.setMargin(label, new Insets(15, 15, 15, 15));
         Scene scene = new Scene(root, 500, 500);
         stage.setScene(scene);
+        stage.setTitle("Status Box");
+        stage.showAndWait();
+    }
+
+    public void warningBox() {
+        Stage stage = new Stage();
+        Label label = new Label("Your move is illegal! Please Try Again");
+        label.setWrapText(true);
+        Button button = new Button("OK");
+        button.setOnAction(event -> {
+            stage.close();
+        });
+        VBox root = new VBox(label, button);
+        root.setAlignment(Pos.CENTER);
+        root.setMargin(label, new Insets(15, 15, 15, 15));
+        Scene scene = new Scene(root, 300, 300);
+        stage.setScene(scene);
+        stage.setTitle("Warning");
         stage.showAndWait();
     }
 
@@ -154,6 +174,34 @@ public class Game extends Application {
 
         makePlacement(gameState.boardPlacement); // setup body panel
 
+        //setup click event
+        mainBody.getChildren().forEach((n)->{
+            n.setOnMouseClicked((e)->{
+                int col = GridPane.getColumnIndex(n);
+                int row = GridPane.getRowIndex(n);
+                System.out.println(col + "," + row);
+                System.out.println(getPosition(col, row));
+                char destination = getPosition(col, row);
+                if (WarringStatesGame.isMoveLegal(gameState.boardPlacement, destination)) {
+                    gameState.previousPlacement = gameState.boardPlacement;
+                    gameState.boardPlacement = WarringStatesGame.updateBoard(gameState.boardPlacement, String.valueOf(destination));
+                    gameState.playerturn = gameState.playerturn % gameState.numOfPlayer + 1;
+                    makePlacement(gameState.boardPlacement);
+                    //edit the font of the score panel so as to indicate who's turn
+                    //remove last playerbox's style
+                    scorePane.getChildren().forEach((node)->{
+                        node.setStyle("");
+                    });
+                    //set the new playerbox's style
+                    scorePane.getChildren().get(gameState.playerturn - 1).setStyle("-fx-background-color: lightgray");
+
+                } else {
+                    warningBox();
+                }
+
+            });
+        });
+
         for (int i = 0; i < gameState.numOfPlayer; i++) { // setup score panel
             VBox playerBox = new VBox();
             Label label = new Label(gameState.players.get(i).name);
@@ -174,7 +222,8 @@ public class Game extends Application {
             HBox.setMargin(currentCard, new Insets(0, 20, 0, 0));
             playerBox.getChildren().addAll(label, imageBox);
             scorePane.getChildren().add(playerBox);
-            scorePane.setMargin(playerBox, new Insets(10, 0, 10, 0));
+            scorePane.setMargin(playerBox, new Insets(10, 20, 10, 0));
+            scorePane.getChildren().get(gameState.playerturn - 1).setStyle("-fx-background-color: lightgray");
         }
 
 
@@ -193,7 +242,7 @@ public class Game extends Application {
             for (int i = 0; i < emptyindex.length(); i++) {  // fill up the empty space for the pane
                 ImageView image = new ImageView(new Image(getClass().getResourceAsStream("assets/empty.png")));
                 String index = getIndex(emptyindex.charAt(i));
-                GridPane.setConstraints(image, index.charAt(0), index.charAt(1));
+                GridPane.setConstraints(image, Integer.valueOf(index.substring(0,1)), Integer.valueOf(index.substring(1)));
                 GridPane.setMargin(image, new Insets(10, 0, 0, 10)); // set margins for each image
                 image.fitHeightProperty().bind(primaryStage.heightProperty().divide(7.5)); // resize the image to fit the height of the stage
                 image.setPreserveRatio(true); // preserve ratio
@@ -210,7 +259,7 @@ public class Game extends Application {
                     }
                 }
                 String index = getIndex(placement.charAt(i + 2));
-                GridPane.setConstraints(image, index.charAt(0), index.charAt(1));  // set the index of the character
+                GridPane.setConstraints(image, Integer.valueOf(index.substring(0,1)) , Integer.valueOf(index.substring(1)) );  // set the index of the character
                 GridPane.setMargin(image, new Insets(10, 0, 0, 10)); // set margins for each image
                 image.fitHeightProperty().bind(primaryStage.heightProperty().divide(7.5)); // resize the image to fit the height of the stage
                 image.setPreserveRatio(true); // preserve ratio
@@ -221,19 +270,29 @@ public class Game extends Application {
 
     String getEmptySpace(String placement) {
         String fullIndex = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuffer full = new StringBuffer("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+
         String existingIndex = "";
         String emptyIndex = "";
         for (int i = 0; i < placement.length(); i += 3) {
-            existingIndex += placement.charAt(i + 2);
+            full.deleteCharAt(full.indexOf(placement.substring(i + 2, i + 3)));
         }
-        for (int i = 0; i < fullIndex.length(); i++) {
-            if (existingIndex.indexOf(fullIndex.charAt(i)) == -1) {
-                emptyIndex += fullIndex.charAt(i);
-            }
-        }
-        return emptyIndex;
+
+        return full.toString();
     }
 
+    char getPosition(int col, int row) {
+        List<String> position = new ArrayList<>();
+        position.add("4YSMGA");
+        position.add("5ZTNHB");
+        position.add("60UOIC");
+        position.add("71VPJD");
+        position.add("82WQKE");
+        position.add("93XRLF");
+
+        return position.get(row).charAt(col);
+
+    }
     String getIndex(char index) { // get index string from the third char of the character card placement string
         String firstrow = "4YSMGA";
         String secondrow = "5ZTNHB";
@@ -244,22 +303,22 @@ public class Game extends Application {
 
         for (int i = 0; i < 6; i++) {
             if (index == firstrow.charAt(i)) {
-                return i + "0";
+                return String.valueOf(i) + "0";
             }
             if (index == secondrow.charAt(i)) {
-                return i + "1";
+                return String.valueOf(i) + "1";
             }
             if (index == thirdrow.charAt(i)) {
-                return i + "2";
+                return String.valueOf(i) + "2";
             }
             if (index == fourthrow.charAt(i)) {
-                return i + "3";
+                return String.valueOf(i) + "3";
             }
             if (index == fifthrow.charAt(i)) {
-                return i + "4";
+                return String.valueOf(i) + "4";
             }
             if (index == sixthrow.charAt(i)) {
-                return i + "5";
+                return String.valueOf(i) + "5";
             }
         }
         return "error";
@@ -284,7 +343,7 @@ public class Game extends Application {
         ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(currentState.boardPlacement);
         for (Character move : allPossibleMove) {
             childNode.add(new GameState(WarringStatesGame.updateBoard(currentState.boardPlacement, String.valueOf(move)),
-                    updatePlayers(currentState, move), (currentState.playerturn + 1) % gameState.numOfPlayer, gameState.numOfPlayer, currentState.boardPlacement)); // get all possible child game state
+                    updatePlayers(currentState, move), (currentState.playerturn % gameState.numOfPlayer + 1), gameState.numOfPlayer, currentState.boardPlacement)); // get all possible child game state
         }
         if (depth == 0) {
             return getHeuristicValue(currentState, gameState.numOfPlayer); //reach the leaf and return the heuristic value, assume AI is the last number of player
@@ -292,7 +351,7 @@ public class Game extends Application {
         if (playerTurn == gameState.numOfPlayer) { // check whether it is the AI's turn
             value = -9999;
             for (GameState cnode : childNode) {
-                value = Math.max(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn + 1) % gameState.numOfPlayer));
+                value = Math.max(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn % gameState.numOfPlayer +1) ));
                 alpha = Math.max(value, alpha);
                 if (alpha >= beta) {
                     break; //pruning
@@ -304,7 +363,7 @@ public class Game extends Application {
         } else { //if it is not AI's turn, assume all human player is trying to play against AI
             value = 9999;
             for (GameState cnode : childNode) {
-                value = Math.min(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn + 1) % gameState.numOfPlayer));
+                value = Math.min(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn % gameState.numOfPlayer + 1)));
                 beta = Math.min(value, beta);
                 if (alpha >= beta) {
                     break; //pruning
@@ -319,7 +378,7 @@ public class Game extends Application {
         ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(gameState.boardPlacement);
         for (Character move : allPossibleMove) { // get the next level of nodes for alpha-beta pruning
             childNode.add(new GameState(WarringStatesGame.updateBoard(gameState.boardPlacement, String.valueOf(move)),
-                    updatePlayers(gameState, move), (gameState.playerturn + 1) % gameState.numOfPlayer, gameState.numOfPlayer, gameState.boardPlacement));
+                    updatePlayers(gameState, move), (gameState.playerturn  % gameState.numOfPlayer + 1), gameState.numOfPlayer, gameState.boardPlacement));
         }
         List<Double> alphabetaScore = new ArrayList<>();
         for (GameState child : childNode) {
