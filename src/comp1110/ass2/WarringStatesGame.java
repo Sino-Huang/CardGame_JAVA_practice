@@ -1,9 +1,6 @@
 package comp1110.ass2;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class provides the text interface for the Warring States game
@@ -445,21 +442,25 @@ public class WarringStatesGame {
      */
     public static char generateMove(String placement) {
         // FIXME Task 10: generate a legal move
-        // generate all legal moves for zhang yi
-        //这个generate all legal move请帮我写在一个新的method里面因为后面的task会单独用到，谢谢你~~ ——Sukai
-        //新的method 已经帮你创好了叫generateAllLegalMove —— Sukai
-
+       if(!generateAllLegalMove(placement).isEmpty()) {
+            Random ran = new Random();
+            int index = ran.nextInt(generateAllLegalMove(placement).size());
+            return generateAllLegalMove(placement).get(index);
+        }
         // randomly choose one legal move
-
         //for task 12, adjust generateMove to return a valuable move.
 
         return '\0';
     }
 
-    public static ArrayList<Character> generateAllLegalMove(String placement) {
+    public static ArrayList<Character> generateAllLegalMove(String placement) {// generate all legal moves for zhang yi
         //TODO
         ArrayList<Character> output = new ArrayList<>();
-        output.add('a');
+        for(int i = 2; i < placement.length(); i += 3){
+            if(isMoveLegal(placement,placement.charAt(i))){
+                output.add(placement.charAt(i));
+            }
+        }
         return output;
     }
 
