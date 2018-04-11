@@ -10,6 +10,7 @@ import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -181,6 +182,44 @@ public class Game extends Application {
         stage.showAndWait();
     }
 
+    public void helpBox() {
+        Stage stage = new Stage();
+        stage.setTitle("Help");
+        Label label = new Label("The game is played by two to four players, using 36 cards.\n" +
+                "There are 35 cards representing characters from the Seven Kingdoms, and one card representing the diplomat Zhang Yi.\n" +
+                "Each kingdom has a different number of character cards:Qin: eight cards\n" +
+                "Qi: seven cards\n" +
+                "Chu: six cards\n" +
+                "Zhao: five cards\n" +
+                "Han: four cards\n" +
+                "Wei: three cards\n" +
+                "Yan: two cards\n" + "To start the game, the 36 cards are shuffled and laid out in a 6x6 grid. The flags of the seven kingdoms are laid next to the grid." +
+                " Players take turns to collect characters to their side, by moving Zhang Yi around the grid." +
+                " On her turn, a player CLICK YOUR DESTINATION." +
+                " Zhang Yi then moves in the chosen direction to the location of the furthest away character from that kingdom, and collects that character card." +
+                " If Zhang Yi passes other characters from the same kingdom while moving, he collects those characters as well." +
+                " Each player may move Zhang Yi only once per turn." +
+                " At the end of her turn, if the player holds an equal or greater number of characters from a kingdom than any of her opponents, she takes the flag of that kingdom." +
+                " (If another player already holds the flag, she takes the flag from that player.)" +
+                " The game ends when Zhang Yi cannot move, that is, when there are no cards in any direction (North, East, South, or West) from Zhang Yi." +
+                " The player who holds the greatest number of flags at the end of the game wins." +
+                " If two or more players hold the same number of flags, the player who holds the flag of the kingdom with the greatest number of characters wins.");
+
+        label.setWrapText(true);
+
+        Button button = new Button("OK");
+        button.setOnAction(event -> {
+            stage.close();
+        });
+        VBox group = new VBox(label, button);
+        group.setAlignment(Pos.CENTER);
+        group.setMargin(label, new Insets(15, 15, 15, 15));
+        Scene scene = new Scene(group, 700, 500);
+        stage.setScene(scene);
+        stage.showAndWait();
+
+    }
+
     public void gameBody() {
         BorderPane root = new BorderPane(mainBody, topControl, scorePane, null, null);
         Button restart = new Button("Restart"); // setup top control panel
@@ -201,7 +240,12 @@ public class Game extends Application {
             statusBox();
         });
 
-        topControl.getChildren().addAll(restart, previousMov, statusCheck);
+        Button helpButton = new Button("Help");
+        helpButton.setOnAction(event -> {
+            helpBox();
+        });
+
+        topControl.getChildren().addAll(restart, previousMov, statusCheck, helpButton);
 
         makePlacement(gameState.boardPlacement); // setup body panel
 

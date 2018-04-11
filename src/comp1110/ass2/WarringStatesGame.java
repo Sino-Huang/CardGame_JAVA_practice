@@ -185,6 +185,9 @@ public class WarringStatesGame {
                 zhangyi = placement.charAt(i + 2);
             }
         }
+        if (zhangyi == locationChar) {
+            return false;
+        }
 
         if(hm.get(zhangyi)[0] != hm.get(locationChar)[0] && hm.get(zhangyi)[1] != hm.get(locationChar)[1]){
             return false;
