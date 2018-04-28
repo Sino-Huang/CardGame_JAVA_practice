@@ -33,6 +33,8 @@ public class Game extends Application {
     private VBox scorePane= new VBox();
     private GridPane mainBody = new GridPane();
     private GameState gameState = null;
+    private String originalBoard = "";
+    private String moveHistory = "";
 
     static String createBoard() {
         List<String> positionList = new ArrayList<>();
@@ -99,7 +101,9 @@ public class Game extends Application {
             if (choiceBox.getValue().equals("Easy")) {
                 whetherSmartAI = false;
             }
-            gameState = new GameState(createBoard(), GameState.initPlayers(numOfPlayer, whetherneedAI, whetherSmartAI), 1, numOfPlayer, whetherneedAI, whetherSmartAI); // setup the initial gameState
+            String newBoard = createBoard();
+            this.originalBoard = newBoard;
+            gameState = new GameState(newBoard, GameState.initPlayers(numOfPlayer, whetherneedAI, whetherSmartAI), 1, numOfPlayer, whetherneedAI, whetherSmartAI); // setup the initial gameState
             gameBody();
         });
 
@@ -256,14 +260,15 @@ public class Game extends Application {
                 int row = GridPane.getRowIndex(n);
                 char destination = getPosition(col, row);
                 if (WarringStatesGame.isMoveLegal(gameState.boardPlacement, destination)) {
+                    this.moveHistory += "" + destination;
                     gameState.previousPlacement = gameState.boardPlacement;
                     gameState.boardPlacement = WarringStatesGame.updateBoard(gameState.boardPlacement, String.valueOf(destination));
-                    gameState.playerturn = gameState.playerturn % gameState.numOfPlayer + 1;
                     makePlacement(gameState.boardPlacement); // update the board; playersTurn; previousPlacement
                     //update the PlayerInfo
                     gameState.players = updatePlayers(gameState, destination);
                     //update the Score panel
                     updateScorePanel();
+                    gameState.playerturn = gameState.playerturn % gameState.numOfPlayer + 1;
 
                     //edit the font of the score panel so as to indicate who's turn
                     //remove last playerbox's style
@@ -486,10 +491,64 @@ public class Game extends Application {
         return 0;
     }
 
+    public static Flags getFlag(int index) {
+        Flags output = null;
+        switch (index) {
+            case 0:
+                output = Flags.A;
+                break;
+            case 1:
+                output = Flags.B;
+                break;
+            case 2:
+                output = Flags.C;
+                break;
+            case 3:
+                output = Flags.D;
+                break;
+            case 4:
+                output = Flags.E;
+                break;
+            case 5:
+                output = Flags.F;
+                break;
+            case 6:
+                output = Flags.G;
+                break;
+        }
+        return output;
+    }
+
     public ArrayList<Player> updatePlayers(GameState gameState, char move) {
         //TODO
+        ArrayList<Player> output = new ArrayList<>(gameState.players);
 
-        return gameState.players;
+        String supporters = WarringStatesGame.getSupporters(originalBoard, moveHistory, gameState.numOfPlayer, gameState.playerturn - 1);
+        String[] supporterList = supporters.split("(?<=\\G.{2})");
+        HashSet<Cards> cards = new HashSet<>();
+        for (Cards n : Cards.values()) {
+            for (int i = 0; i < supporterList.length; i++) {
+                if (supporterList[i].toUpperCase().equals(n.name())) {
+                    cards.add(n);
+                }
+            }
+        }
+        //update the card of the specific player
+        output.get(gameState.playerturn - 1).cards = cards;
+
+        //update the flag of all players
+        int[] flags = WarringStatesGame.getFlags(originalBoard, moveHistory, gameState.numOfPlayer);
+        for (int i = 0; i < output.size(); i++) {
+            HashSet<Flags> flagSet = new HashSet<>();
+            for (int j = 0; j < flags.length; j++) {
+                if (flags[j] == i) {
+                    flagSet.add(getFlag(j));
+                }
+            }
+            output.get(i).flags = flagSet;
+        }
+
+        return output;
     }
 
     public void updateScorePanel() {
@@ -530,26 +589,34 @@ public class Game extends Application {
                 ImageView imageView = null;
                 if (o instanceof Cards) {
                     imageView = ((Cards) o).imageView;
+                    imageView.setOnMouseClicked(null);
                 }
                 if (o instanceof Flags) {
                     imageView = ((Flags) o).imageView;
+                    imageView.setPreserveRatio(true);
+                    imageView.setOnMouseClicked(null);
                 }
                 gridPane.getChildren().add(imageView);
+                gridPane.setMargin(imageView, new Insets(1, 1, 1, 1));
             });
 
             int col = 0;
             int row = 0;
-            int totalImage = gridPane.getChildren().size();
             for (Node node : gridPane.getChildren()) {
                 GridPane.setConstraints(node, col, row);
-                if (col == 4) {
-                    col = 0;
-                    row += 1;
+                if (card) {
+                    if (col == 3) {
+                        col = 0;
+                        row += 1;
+                    } else {
+                        col += 1;
+                    }
                 } else {
-                    col += 1;
+                    row += 1;
                 }
+
                 if (node instanceof ImageView) {
-                    ((ImageView) node).fitWidthProperty().bind(primaryStage.widthProperty().divide(12));
+                    ((ImageView) node).fitHeightProperty().bind(primaryStage.widthProperty().divide(30));
                 }
             }
         }
