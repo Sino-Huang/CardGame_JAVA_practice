@@ -1,5 +1,7 @@
 package comp1110.ass2;
 
+import comp1110.ass2.gui.Game;
+
 import java.util.ArrayList;
 
 public class GameState {
@@ -10,6 +12,8 @@ public class GameState {
     public boolean whetherAI;
     public boolean whetherSmartAI;
     public String previousPlacement = "";
+    public String moveHistory = "";
+    public String originalBoard = "";
 
     @Override
     public String toString() {
@@ -50,24 +54,32 @@ public class GameState {
         this.numOfPlayer = numOfPlayer;
         this.whetherAI = whetherAI;
         this.whetherSmartAI = whetherSmartAI;
+        this.originalBoard = boardPlacement;
     }
 
-    public GameState(String boardPlacement, ArrayList<Player> players, int playerturn, int numOfPlayer, String previous) { // this method is for the updating board status
-        this.boardPlacement = boardPlacement;
-        this.players = players;
-        this.playerturn = playerturn;
-        this.numOfPlayer = numOfPlayer;
-        if (players.get(players.size() - 1).name.equals("AI")) {
-            this.whetherAI = true;
-            this.whetherSmartAI = false;
-        } else if (players.get(players.size() - 1).name.equals("AISmart")) {
-            this.whetherAI = true;
-            this.whetherSmartAI = true;
-        } else {
-            this.whetherAI = false;
-            this.whetherSmartAI = false;
-        }
-        this.previousPlacement = previous;
+    public GameState(GameState gameState) {
+        this.boardPlacement = gameState.boardPlacement;
+        this.players = new ArrayList<Player>(gameState.players);
+        this.playerturn = gameState.playerturn;
+        this.numOfPlayer = gameState.numOfPlayer;
+        whetherAI = gameState.whetherAI;
+        whetherSmartAI = gameState.whetherSmartAI;
+        previousPlacement = gameState.boardPlacement;
+        moveHistory = gameState.moveHistory;
+        originalBoard = gameState.originalBoard;
+    }
+
+    public GameState(GameState oldone, char move) { // this method is for the updating board status for AB pruning
+        String moveString = "" + move;
+        this.boardPlacement = WarringStatesGame.updateBoard(oldone.boardPlacement,moveString);
+        this.players = Game.updatePlayers(oldone, move);
+        this.playerturn = oldone.playerturn % oldone.numOfPlayer + 1;
+        this.numOfPlayer = oldone.numOfPlayer;
+        whetherAI = oldone.whetherAI;
+        whetherSmartAI = oldone.whetherSmartAI;
+        previousPlacement = oldone.boardPlacement;
+        moveHistory = oldone.moveHistory + move;
+        originalBoard = oldone.originalBoard;
     }
 
     public static ArrayList<Player> initPlayers(int numOfPlayer, boolean whetherAI, boolean whetherSmartAI) {

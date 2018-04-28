@@ -14,6 +14,7 @@ public class Player {
     public HashSet<Cards> cards = new HashSet<>();
     public HashSet<Flags> flags = new HashSet<>();
     public double score;
+    //score value changes when call getHeuristicValue in Game.java
 
     @Override
     public String toString() {
@@ -31,8 +32,4 @@ public class Player {
         this.score = 0;
     }
 
-
-    public void setScore() {
-        this.score = flags.size() * 10 + cards.size() * 0.1;
-    }
 }

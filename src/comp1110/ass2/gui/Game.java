@@ -18,10 +18,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 public class Game extends Application {
@@ -32,8 +34,7 @@ public class Game extends Application {
     private VBox scorePane= new VBox();
     private GridPane mainBody = new GridPane();
     private GameState gameState = null;
-    private String originalBoard = "";
-    private String moveHistory = "";
+    private Stage playStage = new Stage();
 
     static String createBoard() {
         List<String> positionList = new ArrayList<>();
@@ -101,7 +102,6 @@ public class Game extends Application {
                 whetherSmartAI = false;
             }
             String newBoard = createBoard();
-            this.originalBoard = newBoard;
             gameState = new GameState(newBoard, GameState.initPlayers(numOfPlayer, whetherneedAI, whetherSmartAI), 1, numOfPlayer, whetherneedAI, whetherSmartAI); // setup the initial gameState
             gameBody();
         });
@@ -130,6 +130,7 @@ public class Game extends Application {
         Scene scene = new Scene(root, 500, 500);
         stage.setScene(scene);
         stage.setTitle("Status Box");
+        stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
     }
 
@@ -147,6 +148,7 @@ public class Game extends Application {
         Scene scene = new Scene(root, 300, 300);
         stage.setScene(scene);
         stage.setTitle("Warning");
+        stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
     }
 
@@ -164,11 +166,13 @@ public class Game extends Application {
         Button restart = new Button("Restart");
         restart.setOnAction(event -> {
             stage.close();
+            playStage.close();
             inputPlayer();
         });
         Button close = new Button("Close");
         close.setOnAction(event -> {
             stage.close();
+            playStage.close();
             primaryStage.close();
         });
         HBox buttonGroup = new HBox(restart, close);
@@ -179,10 +183,9 @@ public class Game extends Application {
 
         VBox root = new VBox(label, buttonGroup);
         root.setAlignment(Pos.CENTER);
-        Scene scene = new Scene(root, 300, 300);
-        stage.setTitle("End of Game");
-        stage.setScene(scene);
-        stage.showAndWait();
+        Scene scene = new Scene(root, BOARD_WIDTH, BOARD_HEIGHT);
+        playStage.setTitle("End of Game");
+        playStage.setScene(scene);
     }
 
     public void helpBox() {
@@ -219,14 +222,49 @@ public class Game extends Application {
         group.setMargin(label, new Insets(15, 15, 15, 15));
         Scene scene = new Scene(group, 700, 500);
         stage.setScene(scene);
+        stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
 
     }
 
+    public void scorePaneHighlight() {
+        //remove last playerbox's style
+        scorePane.getChildren().forEach((node)->{
+            node.setStyle("");
+        });
+        //set the new playerbox's style
+        scorePane.getChildren().get(gameState.playerturn - 1).setStyle("-fx-background-color: lightgray");
+    }
+
+    public void integratedUpdate(char destination) {
+        if (WarringStatesGame.isMoveLegal(gameState.boardPlacement, destination)) {
+            gameState.moveHistory += "" + destination;
+            gameState.previousPlacement = gameState.boardPlacement;
+            gameState.boardPlacement = WarringStatesGame.updateBoard(gameState.boardPlacement, String.valueOf(destination));
+            makePlacement(gameState.boardPlacement); // update the board; playersTurn; previousPlacement
+            //update the PlayerInfo
+            gameState.players = updatePlayers(gameState, destination);
+            //update the Score panel
+            updateScorePanel();
+            //updatePlayers turn
+            gameState.playerturn = gameState.playerturn % gameState.numOfPlayer + 1;
+
+            //edit the font of the score panel so as to indicate who's turn
+            scorePaneHighlight();
+            if (WarringStatesGame.generateAllLegalMove(gameState.boardPlacement).size() == 0) {
+                endBox();
+            }
+        } else {
+            warningBox();
+        }
+    }
+
     public void gameBody() {
+        playStage.setTitle("Play");
         BorderPane root = new BorderPane(mainBody, topControl, scorePane, null, null);
         Button restart = new Button("Restart"); // setup top control panel
         restart.setOnAction((e)->{
+            playStage.close();
             inputPlayer();
         });
 
@@ -253,37 +291,19 @@ public class Game extends Application {
         makePlacement(gameState.boardPlacement); // setup body panel
 
         //setup click event
+
         mainBody.getChildren().forEach((n)->{
             n.setOnMouseClicked((e)->{
                 int col = GridPane.getColumnIndex(n);
                 int row = GridPane.getRowIndex(n);
                 char destination = getPosition(col, row);
-                if (WarringStatesGame.isMoveLegal(gameState.boardPlacement, destination)) {
-                    this.moveHistory += "" + destination;
-                    gameState.previousPlacement = gameState.boardPlacement;
-                    gameState.boardPlacement = WarringStatesGame.updateBoard(gameState.boardPlacement, String.valueOf(destination));
-                    makePlacement(gameState.boardPlacement); // update the board; playersTurn; previousPlacement
-                    //update the PlayerInfo
-                    gameState.players = updatePlayers(gameState, destination);
-                    //update the Score panel
-                    updateScorePanel();
-                    gameState.playerturn = gameState.playerturn % gameState.numOfPlayer + 1;
+                //update it
+                if (gameState.players.get(gameState.playerturn - 1).name.charAt(0) == 'P')
+                integratedUpdate(destination);
 
-                    //edit the font of the score panel so as to indicate who's turn
-                    //remove last playerbox's style
-                    scorePane.getChildren().forEach((node)->{
-                        node.setStyle("");
-                    });
-                    //set the new playerbox's style
-                    scorePane.getChildren().get(gameState.playerturn - 1).setStyle("-fx-background-color: lightgray");
-                    if (WarringStatesGame.generateAllLegalMove(gameState.boardPlacement).size() == 0) {
-                        endBox();
-                    }
-
-                } else {
-                    warningBox();
+                if (gameState.players.get(gameState.playerturn - 1).name.charAt(0) != 'P' && playStage.getTitle().equals("Play")) {
+                    aiMove();
                 }
-
             });
         });
 
@@ -317,7 +337,8 @@ public class Game extends Application {
 
 
         Scene scene = new Scene(root, BOARD_WIDTH, BOARD_HEIGHT);
-        primaryStage.setScene(scene);
+        playStage.setScene(scene);
+        playStage.show();
     }
 
     void makePlacement(String placement) {
@@ -421,26 +442,28 @@ public class Game extends Application {
 
     // FIXME Task 12: Integrate a more advanced opponent into your game
 
-    // get a value system
-
     // use ab pruning to find highest value move
-    public double alphaBetaPruning (GameState node, int depth, double alpha, double beta, int playerTurn){
+    public static double alphaBetaPruning (GameState node, int depth, double alpha, double beta, int playerTurn){
         //use alpha beta pruning to get intelligent move
+        GameState currentState = node;
+        if (depth == 0) {
+            double output;
+            output = getHeuristicValue(currentState.players, node.numOfPlayer);
+            for (int i = 0; i < node.numOfPlayer - 1; i++) {
+                output -= getHeuristicValue(currentState.players, i + 1);
+            }
+            return output; //reach the leaf and return the heuristic value, assume AI is the last number of player
+        }
         double value = 0;
         List<GameState> childNode = new ArrayList<>();
-        GameState currentState = node;
         ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(currentState.boardPlacement);
         for (Character move : allPossibleMove) {
-            childNode.add(new GameState(WarringStatesGame.updateBoard(currentState.boardPlacement, String.valueOf(move)),
-                    updatePlayers(currentState, move), (currentState.playerturn % gameState.numOfPlayer + 1), gameState.numOfPlayer, currentState.boardPlacement)); // get all possible child game state
+            childNode.add(new GameState(currentState, move)); // get all possible child game state
         }
-        if (depth == 0) {
-            return getHeuristicValue(currentState, gameState.numOfPlayer); //reach the leaf and return the heuristic value, assume AI is the last number of player
-        }
-        if (playerTurn == gameState.numOfPlayer) { // check whether it is the AI's turn
+        if (playerTurn == node.numOfPlayer) { // check whether it is the AI's turn
             value = -9999;
             for (GameState cnode : childNode) {
-                value = Math.max(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn % gameState.numOfPlayer +1) ));
+                value = Math.max(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn % node.numOfPlayer +1) ));
                 alpha = Math.max(value, alpha);
                 if (alpha >= beta) {
                     break; //pruning
@@ -448,11 +471,10 @@ public class Game extends Application {
             }
             return value;
 
-
         } else { //if it is not AI's turn, assume all human player is trying to play against AI
             value = 9999;
             for (GameState cnode : childNode) {
-                value = Math.min(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn % gameState.numOfPlayer + 1)));
+                value = Math.min(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn % node.numOfPlayer + 1)));
                 beta = Math.min(value, beta);
                 if (alpha >= beta) {
                     break; //pruning
@@ -462,17 +484,19 @@ public class Game extends Application {
         }
     }
 
-    public char smartMove() {
+    public static char smartMove(GameState gameState) {
+        System.out.println("smartMove check" + gameState);
         List<GameState> childNode = new ArrayList<>();
         ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(gameState.boardPlacement);
         for (Character move : allPossibleMove) { // get the next level of nodes for alpha-beta pruning
-            childNode.add(new GameState(WarringStatesGame.updateBoard(gameState.boardPlacement, String.valueOf(move)),
-                    updatePlayers(gameState, move), (gameState.playerturn  % gameState.numOfPlayer + 1), gameState.numOfPlayer, gameState.boardPlacement));
+            childNode.add(new GameState(gameState, move));
         }
+        System.out.println("smartMove check 2:" +gameState);
         List<Double> alphabetaScore = new ArrayList<>();
         for (GameState child : childNode) {
-            alphabetaScore.add(alphaBetaPruning(child, 5, -9999, 9999, 1)); // the init alphabeta pruning method's playerTurn is 1.
+            alphabetaScore.add(alphaBetaPruning(child, 4, -9999, 9999, 1)); // the init alphabeta pruning method's playerTurn is 1.
         }
+        System.out.println("smartMove check 3:" +gameState);
         double max = -9999;
         int count = 0;
         for (int i = 0; i < alphabetaScore.size(); i++) { // find the maximum score for AI
@@ -481,13 +505,19 @@ public class Game extends Application {
                 count = i;
             }
         }
+        System.out.println(allPossibleMove.get(count));
         return allPossibleMove.get(count); // return the corresponding move for AI
     }
 
-    public double getHeuristicValue(GameState gameState, int playerTurn) {
+    public static double getHeuristicValue(ArrayList<Player> players, int playerTurn) {
         //TODO
         // calculate the heuristic value of the current state using its score
-        return 0;
+        // set one flag for 10 score, one supporter for 0.1 score
+        double output;
+        output = players.get(playerTurn - 1).flags.size() * 10;
+        output += players.get(playerTurn - 1).cards.size() * 0.1;
+        players.get(playerTurn - 1).score = output;
+        return output;
     }
 
     public static Flags getFlag(int index) {
@@ -518,10 +548,10 @@ public class Game extends Application {
         return output;
     }
     //update the gameState.players information using task 7,8 function
-    public ArrayList<Player> updatePlayers(GameState gameState, char move) {
+    public static ArrayList<Player> updatePlayers(GameState gameState, char move) {
         ArrayList<Player> output = new ArrayList<>(gameState.players);
 
-        String supporters = WarringStatesGame.getSupporters(originalBoard, moveHistory, gameState.numOfPlayer, gameState.playerturn - 1);
+        String supporters = WarringStatesGame.getSupporters(gameState.originalBoard, gameState.moveHistory, gameState.numOfPlayer, gameState.playerturn - 1);
         String[] supporterList = supporters.split("(?<=\\G.{2})");
         HashSet<Cards> cards = new HashSet<>();
         for (Cards n : Cards.values()) {
@@ -535,7 +565,7 @@ public class Game extends Application {
         output.get(gameState.playerturn - 1).cards = cards;
 
         //update the flag of all players
-        int[] flags = WarringStatesGame.getFlags(originalBoard, moveHistory, gameState.numOfPlayer);
+        int[] flags = WarringStatesGame.getFlags(gameState.originalBoard, gameState.moveHistory, gameState.numOfPlayer);
         for (int i = 0; i < output.size(); i++) {
             HashSet<Flags> flagSet = new HashSet<>();
             for (int j = 0; j < flags.length; j++) {
@@ -545,7 +575,9 @@ public class Game extends Application {
             }
             output.get(i).flags = flagSet;
         }
-
+        for (int i = 1; i <= gameState.numOfPlayer; i++) {
+            getHeuristicValue(output, i);
+        }
         return output;
     }
 
@@ -626,6 +658,20 @@ public class Game extends Application {
 
     }
 
+    public void aiMove() {
+        if (!gameState.whetherSmartAI) {
+            // delay 1 second so that AI moves in a comfortable speed
+            Timeline delay = new Timeline(new KeyFrame(Duration.millis(1000), event -> integratedUpdate(simpleMove())));
+            delay.play();
+        } else {
+            GameState copy = new GameState(gameState);
+            System.out.println("This is the copy: " + copy);
+            char output = smartMove(gameState);
+            gameState = copy;
+            System.out.println("this is the back gameState: " + gameState);
+            integratedUpdate(output);
+        }
+    }
 
 
     @Override
