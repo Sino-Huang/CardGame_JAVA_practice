@@ -10,7 +10,6 @@ import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -518,9 +517,8 @@ public class Game extends Application {
         }
         return output;
     }
-
+    //update the gameState.players information using task 7,8 function
     public ArrayList<Player> updatePlayers(GameState gameState, char move) {
-        //TODO
         ArrayList<Player> output = new ArrayList<>(gameState.players);
 
         String supporters = WarringStatesGame.getSupporters(originalBoard, moveHistory, gameState.numOfPlayer, gameState.playerturn - 1);
@@ -577,6 +575,7 @@ public class Game extends Application {
     }
 
     public void updateCardAndFlagImage(GridPane gridPane , Player player, boolean card) {
+        gridPane.setMinSize(116,116);
         HashSet targetSet = null;
         if (card) {
             targetSet = player.cards;
@@ -600,6 +599,7 @@ public class Game extends Application {
                 gridPane.setMargin(imageView, new Insets(1, 1, 1, 1));
             });
 
+            //set coordinate of card and flags
             int col = 0;
             int row = 0;
             for (Node node : gridPane.getChildren()) {
@@ -614,9 +614,12 @@ public class Game extends Application {
                 } else {
                     row += 1;
                 }
-
-                if (node instanceof ImageView) {
+                // set size of card and flags differently
+                if (node instanceof ImageView && card) {
                     ((ImageView) node).fitHeightProperty().bind(primaryStage.widthProperty().divide(30));
+                }
+                if (node instanceof ImageView && !card) {
+                    ((ImageView) node).fitHeightProperty().bind(primaryStage.widthProperty().divide(50));
                 }
             }
         }
