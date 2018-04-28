@@ -374,6 +374,24 @@ public class WarringStatesGame {
         return setup;
     }
 
+    public static String sortSetup(String setup) {
+        StringBuffer boardPosition = new StringBuffer("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+        String output = "";
+        while (boardPosition.length() > 0) {
+            for (int i = 0; i < setup.length(); i += 3) {
+                if (boardPosition.charAt(0) == setup.charAt(i + 2)) {
+                    output += setup.substring(i, i + 3);
+                    boardPosition.deleteCharAt(0);
+                    break;
+                }
+                if (i == setup.length() - 1) {
+                    boardPosition.deleteCharAt(0);
+                }
+            }
+        }
+        return output;
+    }
+
 
     /**
      * Get the list of supporters for the chosen player, given the provided
@@ -387,6 +405,7 @@ public class WarringStatesGame {
      * @param playerId     the player number for which to get the list of supporters, [0..(numPlayers-1)]
      * @return the list of supporters for the given player
      */
+
     public static String getSupporters(String setup, String moveSequence, int numPlayers, int playerId) {
         // FIXME Task 7: get the list of supporters for a given player after a sequence of moves
         // check which move is corresponding to the player
@@ -396,110 +415,69 @@ public class WarringStatesGame {
             playerMoves.add(i-1);
         }
 
-
-        if (isMoveSequenceValid(setup, moveSequence)); { //check if moveSequence is vaild
-            String supporters = "";
-            String locations = "";
-            // setup the locations of each character
-            for (int i = 2; i < setup.length(); i += 3) { // Get all the locations
-                locations = locations.concat(setup.substring(i, i + 1));
+        // get currentPosition of z9 and store it
+        char currentPosition = '\0';
+        for (int j = 0; j < setup.length(); j += 3) {
+            if (setup.substring(j, j + 2).equals("z9")) {
+                currentPosition = setup.charAt(j + 2);
+                break;
             }
-
-            // simulate the game, get the card at that player's round, add to the string
-
-            for (int i = 0; i < moveSequence.length(); i ++) {
-                //the idea is to update the board each move, and get the difference of the board between each move
-                //this gives the support
-                String[] setupList = setup.split("(?<=\\G...)");
-                String updatedSetup = updateBoard(setup, moveSequence.substring(i,i+1));
-
-                //creat the String list for compare
-
-                String[] updatedSetupList = updatedSetup.split("(?<=\\G...)");
-
-                //find the difference
-
-                for (int j = 0; j < setupList.length ; j++){
-                    if (Arrays.asList(updatedSetupList).contains(setupList[j]) || setupList[j].substring(0,2).equals("z9")){
-                        setupList[j] = "";
-                    }
-                    else{
-                        setupList[j] = setupList[j].substring(0,2);
-                    }
-                }
-
-                // store the difference for particular player p
-
-                if (playerMoves.contains(i)) {
-                    supporters = supporters.concat(String.join("", setupList));
-                }
-                setup = updatedSetup;
-            }
-
-            //rearrange the sequence of supporters
-            String[] sup = new String[supporters.length()/2];
-
-            for (int i = 0 ; i < sup.length;i++){
-                sup[i] = supporters.substring(i*2,i*2+2);
-            }
-
-            Arrays.sort(sup);
-
-            supporters = String.join("",sup);
-
-            return supporters;
         }
+
+
+        //assume it is already correct
+        String supporters = "";
+
+        // simulate the game, get the card at that player's round, add to the string
+
+        for (int i = 0; i < moveSequence.length(); i ++) {
+            //the idea is to update the board each move, and get the difference of the board between each move
+            //this gives the support
+            String[] setupList = setup.split("(?<=\\G...)");
+            char movePosition = moveSequence.charAt(i);
+
+            String updatedSetup = updateBoard(setup, String.valueOf(movePosition));
+
+            //creat the String list for compare
+
+            String[] updatedSetupList = updatedSetup.split("(?<=\\G...)");
+
+            //find the difference
+
+            for (int j = 0; j < setupList.length ; j++){
+                if (Arrays.asList(updatedSetupList).contains(setupList[j]) || setupList[j].substring(0,2).equals("z9")){
+                    setupList[j] = "";
+                }
+                else{
+                    setupList[j] = setupList[j].substring(0,2);
+                }
+            }
+
+            // arrange the order of the supporter input
+            String finalSupporterString = String.join("", setupList);
+            int[] currentPositionCoor = hm.get(currentPosition);
+            int[] movePositionCoor = hm.get(movePosition);
+            if (currentPositionCoor[1] > movePositionCoor[1] || currentPositionCoor[0] > movePositionCoor[0]) {
+                String newString = "";
+                for (int j = 0; j < finalSupporterString.length(); j += 2) {
+                    newString = finalSupporterString.substring(j, j + 2) + newString;
+                }
+                finalSupporterString = newString;
+            }
+
+            currentPosition = movePosition;
+
+            // store the difference for particular player p
+
+            if (playerMoves.contains(i)) {
+                supporters = supporters.concat(finalSupporterString);
+            }
+            setup = updatedSetup;
+        }
+        return supporters;
 
     }
 
-
-    public static String getSupportersUnsorted(String setup, String moveSequence, int numPlayers, int playerId) {
-        // FIXME Task 7: get the list of supporters for a given player after a sequence of moves
-        // check which move is corresponding to the player
-        List<Integer> playerMoves = new ArrayList<>();
-
-        for (int i = playerId + 1 ; i <= moveSequence.length(); i += numPlayers){
-            playerMoves.add(i-1);
-        }
-
-
-        if (isMoveSequenceValid(setup, moveSequence)); { //check if moveSequence is vaild
-            String supporters = "";
-
-            // simulate the game, get the card at that player's round, add to the string
-
-            for (int i = 0; i < moveSequence.length(); i ++) {
-                //the idea is to update the board each move, and get the difference of the board between each move
-                //this gives the support
-                String[] setupList = setup.split("(?<=\\G...)");
-                String updatedSetup = updateBoard(setup, moveSequence.substring(i,i+1));
-
-                //creat the String list for compare
-
-                String[] updatedSetupList = updatedSetup.split("(?<=\\G...)");
-
-                //find the difference
-
-                for (int j = 0; j < setupList.length ; j++){
-                    if (Arrays.asList(updatedSetupList).contains(setupList[j]) || setupList[j].substring(0,2).equals("z9")){
-                        setupList[j] = "";
-                    }
-                    else{
-                        setupList[j] = setupList[j].substring(0,2);
-                    }
-                }
-
-                // store the difference for particular player p
-
-                if (playerMoves.contains(i)) {
-                    supporters = supporters.concat(String.join("", setupList));
-                }
-                setup = updatedSetup;
-            }
-            return supporters;
-        }
-
-    }
 
     /**
      * Given a setup and move sequence, determine which player controls the flag of each kingdom
@@ -518,46 +496,97 @@ public class WarringStatesGame {
      * - element 6 contains the player ID of the player who controls the flag of Yan
      * If no player controls a particular house, the element for that house will have the value -1.
      */
-
     public static int[] getFlags(String setup, String moveSequence, int numPlayers) {
         // FIXME Task 8: determine which player controls the flag of each kingdom after a given sequence of moves
-        int[] flagArray = new int[7]; // init the flag array
-
-        for (int j = 97; j <= 103; j++) {
-            int index = -1;
-            String[] playerSupporter = new String[numPlayers];
-            int[] oldcountryCount = new int[numPlayers];
-            int[] countryCount = new int[numPlayers];
-
-            //get supporter
-            for (int i = 0 ; i < moveSequence.length() ; i++) {
-                playerSupporter[i % numPlayers] = getSupporters(setup, moveSequence.substring(0, i + 1), numPlayers, i % numPlayers);
-
-                //record how many countries player have
-                countryCount[i % numPlayers] = playerSupporter[i % numPlayers].length() - playerSupporter[i % numPlayers].replace(String.valueOf((char) j), "").length();
-
-                if (countryCount[i % numPlayers] != 0) {
-                    if (index == -1) {
-                        index = i % numPlayers;
-                    } else {
-                        if (countryCount[i % numPlayers] >= countryCount[index] && countryCount[i % numPlayers] > oldcountryCount[i % numPlayers]) {
-                            index = i % numPlayers;
+        setup = sortSetup(setup);
+        String countryList = "abcdefg";
+        int[] flagArray = new int[]{-1,-1,-1,-1,-1,-1,-1}; // init the flag array
+        String[] supporterArray = new String[numPlayers];
+        for (int i = 0; i < numPlayers; i++) {
+            supporterArray[i] = getSupporters(setup, moveSequence, numPlayers, i);
+        }
+        //start to check the supporters' country one by one
+        String[] countryRecord = new String[numPlayers];
+        for (int i = 0; i < numPlayers; i++) {
+            int countA=0, countB=0, countC=0, countD=0, countE=0, countF=0, countG = 0;
+            for (int j = 0; j < supporterArray[i].length(); j += 2) {
+                switch (supporterArray[i].charAt(j)) {
+                    case 'a':
+                        countA += 1;
+                        break;
+                    case 'b':
+                        countB += 1;
+                        break;
+                    case 'c':
+                        countC += 1;
+                        break;
+                    case 'd':
+                        countD += 1;
+                        break;
+                    case 'e':
+                        countE += 1;
+                        break;
+                    case 'f':
+                        countF += 1;
+                        break;
+                    case 'g':
+                        countG += 1;
+                        break;
+                }
+                }
+            countryRecord[i] = Integer.toString(countA) + Integer.toString(countB) + Integer.toString(countC) + Integer.toString(countD) + Integer.toString(countE) + Integer.toString(countF) + Integer.toString(countG);
+       }
+            // now it is the time to check who get the flag
+        for (int i = 0; i < 7; i++) {
+            char theSelectedCountry = countryList.charAt(i);
+            int[] countryCompare = new int[numPlayers];
+            for (int j = 0; j < numPlayers; j++) {
+                countryCompare[j] = Character.getNumericValue(countryRecord[j].charAt(i));
+            }
+            int currentWinner = -1;
+            int max = -5;
+            for (int j = 0; j < countryCompare.length; j++) {
+                if (countryCompare[j] == 0) {
+                    continue;
+                }
+                if (max < countryCompare[j]) {
+                    currentWinner = j;
+                    max = countryCompare[j];
+                }else if (max == countryCompare[j]) { // now find who is the last move
+                    // find old winner's last supporter of this country
+                    String oldWinnerSupporter = "";
+                    char oldWinnerSupporterLocation = '\0';
+                    for (int k = supporterArray[currentWinner].length() - 2; k >= 0; k -= 2) {
+                        if (supporterArray[currentWinner].charAt(k) == theSelectedCountry) {
+                            oldWinnerSupporter = supporterArray[currentWinner].substring(k, k + 2);
+                            break;
                         }
                     }
+                    oldWinnerSupporterLocation = setup.charAt(setup.indexOf(oldWinnerSupporter) + 2);
+                    // find new player's last supporter of this country
+                    String newWinnerSupporter = "";
+                    char newWinnerSupporterLocation = '\0';
+                    for (int k = supporterArray[j].length() - 2; k >= 0; k -= 2) {
+                        if (supporterArray[j].charAt(k) == theSelectedCountry) {
+                            newWinnerSupporter = supporterArray[j].substring(k, k + 2);
+                            break;
+                        }
+                    }
+                    newWinnerSupporterLocation = setup.charAt(setup.indexOf(newWinnerSupporter) + 2);
+
+                    // find out who is the last pick
+                    if (moveSequence.indexOf(oldWinnerSupporterLocation) > moveSequence.indexOf(newWinnerSupporterLocation)) {
+                        continue;
+                    } else {
+                        currentWinner = j;
+                    }
                 }
-
-                oldcountryCount[i % numPlayers] = countryCount[i % numPlayers];
             }
-            flagArray[j - 97] = index;
-            }
-
-
-        // add the player to the flag array
-
-        // recursively find highest support for the next kingdom
+            flagArray[i] = currentWinner;
+        }
 
         return flagArray;
-    }
+        }
 
     /**
      * Generate a legal move, given the provided placement string.
