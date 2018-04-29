@@ -456,10 +456,9 @@ public class Game extends Application {
     // use ab pruning to find highest value move
     public static double alphaBetaPruning (GameState node, int depth, double alpha, double beta, int playerTurn){
         //use alpha beta pruning to get intelligent move
-        if (depth == 4) {
-        }
         GameState currentState = node;
-        if (depth == 0) {
+        ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(currentState.boardPlacement);
+        if (depth == 0 || allPossibleMove.size() == 0) {
             double output;
             output = getHeuristicValue(currentState.players, currentState.numOfPlayer);
             for (int i = 0; i < currentState.numOfPlayer - 1; i++) {
@@ -469,7 +468,6 @@ public class Game extends Application {
         }
         double value;
         List<GameState> childNode = new ArrayList<>();
-        ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(currentState.boardPlacement);
         for (Character move : allPossibleMove) {
             GameState newState = new GameState(currentState, move);
             newState.players = updatePlayers(currentState, move);
@@ -509,7 +507,12 @@ public class Game extends Application {
         }
         List<Double> alphabetaScore = new ArrayList<>();
         for (GameState child : childNode) {
-            alphabetaScore.add(alphaBetaPruning(child, 4, -9999, 9999, 1)); // the init alphabeta pruning method's playerTurn is 1.
+            if (child.moveHistory.length() < 6) {
+                //initiall there a lots of available moves thus only search 4 depth
+                alphabetaScore.add(alphaBetaPruning(child, 4, -9999, 9999, 1)); // the init alphabeta pruning method's playerTurn is 1.
+            } else {
+                alphabetaScore.add(alphaBetaPruning(child, 5, -9999, 9999, 1)); // the init alphabeta pruning method's playerTurn is 1.
+            }
         }
         double max = -9999;
         int count = 0;
@@ -673,13 +676,30 @@ public class Game extends Application {
     }
 
     public void aiMove() {
+        Text label = new Text("AI is runing!");
+        label.setFont(Font.font("Verdana", FontWeight.EXTRA_BOLD, 40));
+        DropShadow shadow = new DropShadow();
+        shadow.setOffsetY(10);
+        shadow.setColor(Color.WHITE);
+        label.setEffect(shadow);
+        Parent oldRoot = playStage.getScene().getRoot();
+        StackPane combineRoot = new StackPane(oldRoot, label);
+        Scene newScene = new Scene(combineRoot);
         if (!gameState.whetherSmartAI) {
             // delay 1 second so that AI moves in a comfortable speed
-            Timeline delay = new Timeline(new KeyFrame(Duration.millis(1000), event -> integratedUpdate(simpleMove())));
+            playStage.setScene(newScene);
+            Timeline delay = new Timeline(new KeyFrame(Duration.millis(1000), event -> {
+                integratedUpdate(simpleMove());
+                combineRoot.getChildren().remove(1, 2);
+            }));
             delay.play();
         } else {
-            char output = smartMove(gameState);
-            integratedUpdate(output);
+            playStage.setScene(newScene);
+            Timeline delay = new Timeline(new KeyFrame(Duration.millis(10), event -> {
+                integratedUpdate(smartMove(gameState));
+                combineRoot.getChildren().remove(1, 2);
+            }));
+            delay.play();
         }
     }
 
