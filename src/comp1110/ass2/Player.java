@@ -32,4 +32,13 @@ public class Player {
         this.score = 0;
     }
 
+    public Player clone() {
+        Player output = new Player(this.name, this.position);
+        output.cards = (HashSet)this.cards.clone();
+        output.flags = (HashSet) this.flags.clone();
+        output.score = this.score;
+
+        return output;
+    }
+
 }

@@ -57,23 +57,15 @@ public class GameState {
         this.originalBoard = boardPlacement;
     }
 
-    public GameState(GameState gameState) {
-        this.boardPlacement = gameState.boardPlacement;
-        this.players = new ArrayList<Player>(gameState.players);
-        this.playerturn = gameState.playerturn;
-        this.numOfPlayer = gameState.numOfPlayer;
-        whetherAI = gameState.whetherAI;
-        whetherSmartAI = gameState.whetherSmartAI;
-        previousPlacement = gameState.boardPlacement;
-        moveHistory = gameState.moveHistory;
-        originalBoard = gameState.originalBoard;
-    }
 
     public GameState(GameState oldone, char move) { // this method is for the updating board status for AB pruning
         String moveString = "" + move;
         this.boardPlacement = WarringStatesGame.updateBoard(oldone.boardPlacement,moveString);
-        this.players = Game.updatePlayers(oldone, move);
         this.playerturn = oldone.playerturn % oldone.numOfPlayer + 1;
+        this.players = new ArrayList<Player>();
+        for (int i = 0; i < oldone.players.size(); i++) {
+            this.players.add(oldone.players.get(i).clone());
+        }
         this.numOfPlayer = oldone.numOfPlayer;
         whetherAI = oldone.whetherAI;
         whetherSmartAI = oldone.whetherSmartAI;

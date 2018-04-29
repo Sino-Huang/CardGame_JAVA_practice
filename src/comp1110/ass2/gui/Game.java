@@ -11,13 +11,17 @@ import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -153,7 +157,7 @@ public class Game extends Application {
     }
 
     public void endBox() {
-        Stage stage = new Stage();
+        playStage.setTitle("End of Game");
         double maxScore = -9999;
         Player winner = null;
         for (Player p : gameState.players) {
@@ -162,16 +166,21 @@ public class Game extends Application {
                 winner = p;
             }
         }
-        Label label = new Label("The game is end! Winner is: " + winner.name);
+        Text label = new Text("The game is end! Winner is: " + winner.name);
+        label.setFont(Font.font("Verdana", FontWeight.EXTRA_BOLD, 40));
+        DropShadow shadow = new DropShadow();
+        shadow.setOffsetY(10);
+        shadow.setColor(Color.WHITE);
+        label.setEffect(shadow);
         Button restart = new Button("Restart");
+        restart.setMinSize(200,100);
         restart.setOnAction(event -> {
-            stage.close();
             playStage.close();
             inputPlayer();
         });
         Button close = new Button("Close");
+        close.setMinSize(200,100);
         close.setOnAction(event -> {
-            stage.close();
             playStage.close();
             primaryStage.close();
         });
@@ -183,8 +192,9 @@ public class Game extends Application {
 
         VBox root = new VBox(label, buttonGroup);
         root.setAlignment(Pos.CENTER);
-        Scene scene = new Scene(root, BOARD_WIDTH, BOARD_HEIGHT);
-        playStage.setTitle("End of Game");
+        Parent oldroot = playStage.getScene().rootProperty().get();
+        StackPane combineRoot = new StackPane( oldroot, root);
+        Scene scene = new Scene(combineRoot);
         playStage.setScene(scene);
     }
 
@@ -242,12 +252,13 @@ public class Game extends Application {
             gameState.previousPlacement = gameState.boardPlacement;
             gameState.boardPlacement = WarringStatesGame.updateBoard(gameState.boardPlacement, String.valueOf(destination));
             makePlacement(gameState.boardPlacement); // update the board; playersTurn; previousPlacement
+            //updatePlayers turn
+            gameState.playerturn = gameState.playerturn % gameState.numOfPlayer + 1;
             //update the PlayerInfo
             gameState.players = updatePlayers(gameState, destination);
             //update the Score panel
             updateScorePanel();
-            //updatePlayers turn
-            gameState.playerturn = gameState.playerturn % gameState.numOfPlayer + 1;
+
 
             //edit the font of the score panel so as to indicate who's turn
             scorePaneHighlight();
@@ -321,9 +332,9 @@ public class Game extends Application {
             GridPane currentFlagImageGrid = new GridPane();
             ImageView currentFlagImage = new ImageView(new Image(getClass().getResourceAsStream("assets/initStatus.png")));
             currentFlagImageGrid.getChildren().add(currentFlagImage);
-            currentCardImage.fitWidthProperty().bind(primaryStage.widthProperty().divide(8));
+            currentCardImage.fitWidthProperty().bind(playStage.widthProperty().divide(8));
             currentCardImage.setPreserveRatio(true);
-            currentFlagImage.fitWidthProperty().bind(primaryStage.widthProperty().divide(8));
+            currentFlagImage.fitWidthProperty().bind(playStage.widthProperty().divide(8));
             currentFlagImage.setPreserveRatio(true);
             currentCard.getChildren().addAll(currentCardLabel, currentCardImageGrid);
             currentFlag.getChildren().addAll(currentFlagLabel, currentFlagImageGrid);
@@ -354,7 +365,7 @@ public class Game extends Application {
                 String index = getIndex(emptyindex.charAt(i));
                 GridPane.setConstraints(image, Integer.valueOf(index.substring(0,1)), Integer.valueOf(index.substring(1)));
                 GridPane.setMargin(image, new Insets(10, 0, 0, 10)); // set margins for each image
-                image.fitHeightProperty().bind(primaryStage.heightProperty().divide(7.5)); // resize the image to fit the height of the stage
+                image.fitHeightProperty().bind(playStage.heightProperty().divide(7.5)); // resize the image to fit the height of the stage
                 image.setPreserveRatio(true); // preserve ratio
                 mainBody.getChildren().add(image);
             }
@@ -371,7 +382,7 @@ public class Game extends Application {
                 String index = getIndex(placement.charAt(i + 2));
                 GridPane.setConstraints(image, Integer.valueOf(index.substring(0,1)) , Integer.valueOf(index.substring(1)) );  // set the index of the character
                 GridPane.setMargin(image, new Insets(10, 0, 0, 10)); // set margins for each image
-                image.fitHeightProperty().bind(primaryStage.heightProperty().divide(7.5)); // resize the image to fit the height of the stage
+                image.fitHeightProperty().bind(playStage.heightProperty().divide(7.5)); // resize the image to fit the height of the stage
                 image.setPreserveRatio(true); // preserve ratio
                 mainBody.getChildren().add(image);
             }
@@ -445,25 +456,29 @@ public class Game extends Application {
     // use ab pruning to find highest value move
     public static double alphaBetaPruning (GameState node, int depth, double alpha, double beta, int playerTurn){
         //use alpha beta pruning to get intelligent move
+        if (depth == 4) {
+        }
         GameState currentState = node;
         if (depth == 0) {
             double output;
-            output = getHeuristicValue(currentState.players, node.numOfPlayer);
-            for (int i = 0; i < node.numOfPlayer - 1; i++) {
+            output = getHeuristicValue(currentState.players, currentState.numOfPlayer);
+            for (int i = 0; i < currentState.numOfPlayer - 1; i++) {
                 output -= getHeuristicValue(currentState.players, i + 1);
             }
             return output; //reach the leaf and return the heuristic value, assume AI is the last number of player
         }
-        double value = 0;
+        double value;
         List<GameState> childNode = new ArrayList<>();
         ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(currentState.boardPlacement);
         for (Character move : allPossibleMove) {
-            childNode.add(new GameState(currentState, move)); // get all possible child game state
+            GameState newState = new GameState(currentState, move);
+            newState.players = updatePlayers(currentState, move);
+            childNode.add(newState); // get all possible child game state
         }
-        if (playerTurn == node.numOfPlayer) { // check whether it is the AI's turn
+        if (playerTurn == currentState.numOfPlayer) { // check whether it is the AI's turn
             value = -9999;
             for (GameState cnode : childNode) {
-                value = Math.max(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn % node.numOfPlayer +1) ));
+                value = Math.max(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn % currentState.numOfPlayer +1) ));
                 alpha = Math.max(value, alpha);
                 if (alpha >= beta) {
                     break; //pruning
@@ -474,7 +489,7 @@ public class Game extends Application {
         } else { //if it is not AI's turn, assume all human player is trying to play against AI
             value = 9999;
             for (GameState cnode : childNode) {
-                value = Math.min(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn % node.numOfPlayer + 1)));
+                value = Math.min(value, alphaBetaPruning(cnode, depth - 1, alpha, beta, (playerTurn % currentState.numOfPlayer + 1)));
                 beta = Math.min(value, beta);
                 if (alpha >= beta) {
                     break; //pruning
@@ -485,18 +500,17 @@ public class Game extends Application {
     }
 
     public static char smartMove(GameState gameState) {
-        System.out.println("smartMove check" + gameState);
         List<GameState> childNode = new ArrayList<>();
         ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(gameState.boardPlacement);
         for (Character move : allPossibleMove) { // get the next level of nodes for alpha-beta pruning
-            childNode.add(new GameState(gameState, move));
+            GameState newState = new GameState(gameState, move);
+            newState.players = updatePlayers(newState, move);
+            childNode.add(newState);
         }
-        System.out.println("smartMove check 2:" +gameState);
         List<Double> alphabetaScore = new ArrayList<>();
         for (GameState child : childNode) {
             alphabetaScore.add(alphaBetaPruning(child, 4, -9999, 9999, 1)); // the init alphabeta pruning method's playerTurn is 1.
         }
-        System.out.println("smartMove check 3:" +gameState);
         double max = -9999;
         int count = 0;
         for (int i = 0; i < alphabetaScore.size(); i++) { // find the maximum score for AI
@@ -505,7 +519,6 @@ public class Game extends Application {
                 count = i;
             }
         }
-        System.out.println(allPossibleMove.get(count));
         return allPossibleMove.get(count); // return the corresponding move for AI
     }
 
@@ -547,11 +560,12 @@ public class Game extends Application {
         }
         return output;
     }
+
     //update the gameState.players information using task 7,8 function
     public static ArrayList<Player> updatePlayers(GameState gameState, char move) {
         ArrayList<Player> output = new ArrayList<>(gameState.players);
 
-        String supporters = WarringStatesGame.getSupporters(gameState.originalBoard, gameState.moveHistory, gameState.numOfPlayer, gameState.playerturn - 1);
+        String supporters = WarringStatesGame.getSupporters(gameState.originalBoard, gameState.moveHistory, gameState.numOfPlayer, Math.floorMod(gameState.playerturn - 2,gameState.numOfPlayer));
         String[] supporterList = supporters.split("(?<=\\G.{2})");
         HashSet<Cards> cards = new HashSet<>();
         for (Cards n : Cards.values()) {
@@ -562,7 +576,7 @@ public class Game extends Application {
             }
         }
         //update the card of the specific player
-        output.get(gameState.playerturn - 1).cards = cards;
+        output.get(Math.floorMod(gameState.playerturn - 2,gameState.numOfPlayer)).cards = cards;
 
         //update the flag of all players
         int[] flags = WarringStatesGame.getFlags(gameState.originalBoard, gameState.moveHistory, gameState.numOfPlayer);
@@ -648,10 +662,10 @@ public class Game extends Application {
                 }
                 // set size of card and flags differently
                 if (node instanceof ImageView && card) {
-                    ((ImageView) node).fitHeightProperty().bind(primaryStage.widthProperty().divide(30));
+                    ((ImageView) node).fitHeightProperty().bind(playStage.widthProperty().divide(30));
                 }
                 if (node instanceof ImageView && !card) {
-                    ((ImageView) node).fitHeightProperty().bind(primaryStage.widthProperty().divide(50));
+                    ((ImageView) node).fitHeightProperty().bind(playStage.widthProperty().divide(50));
                 }
             }
         }
@@ -664,11 +678,7 @@ public class Game extends Application {
             Timeline delay = new Timeline(new KeyFrame(Duration.millis(1000), event -> integratedUpdate(simpleMove())));
             delay.play();
         } else {
-            GameState copy = new GameState(gameState);
-            System.out.println("This is the copy: " + copy);
             char output = smartMove(gameState);
-            gameState = copy;
-            System.out.println("this is the back gameState: " + gameState);
             integratedUpdate(output);
         }
     }
@@ -689,6 +699,7 @@ public class Game extends Application {
 
         Button startButton = new Button();
         startButton.setText("Start");
+        startButton.setMinSize(200,100);
         StackPane.setAlignment(startButton,Pos.BOTTOM_CENTER);
         Timeline loadToPreparation = new Timeline(new KeyFrame(Duration.millis(2000), (e) -> { // create timeline so as to wait for animation end
             inputPlayer();
