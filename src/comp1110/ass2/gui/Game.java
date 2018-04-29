@@ -27,8 +27,6 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-
 
 public class Game extends Application {
     private static final int BOARD_WIDTH = 933;
