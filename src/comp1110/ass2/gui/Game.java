@@ -452,7 +452,7 @@ public class Game extends Application {
     // FIXME Task 12: Integrate a more advanced opponent into your game
 
     // use ab pruning to find highest value move
-    public static double alphaBetaPruning (GameState node, int depth, double alpha, double beta, int playerTurn){
+    public double alphaBetaPruning(GameState node, int depth, double alpha, double beta, int playerTurn){
         //use alpha beta pruning to get intelligent move
         GameState currentState = node;
         ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(currentState.boardPlacement);
@@ -495,7 +495,7 @@ public class Game extends Application {
         }
     }
 
-    public static char smartMove(GameState gameState) {
+    public char smartMove(GameState gameState) {
         List<GameState> childNode = new ArrayList<>();
         ArrayList<Character> allPossibleMove = WarringStatesGame.generateAllLegalMove(gameState.boardPlacement);
         for (Character move : allPossibleMove) { // get the next level of nodes for alpha-beta pruning
@@ -534,36 +534,13 @@ public class Game extends Application {
         return output;
     }
 
-    public static Flags getFlag(int index) {
-        Flags output = null;
-        switch (index) {
-            case 0:
-                output = Flags.A;
-                break;
-            case 1:
-                output = Flags.B;
-                break;
-            case 2:
-                output = Flags.C;
-                break;
-            case 3:
-                output = Flags.D;
-                break;
-            case 4:
-                output = Flags.E;
-                break;
-            case 5:
-                output = Flags.F;
-                break;
-            case 6:
-                output = Flags.G;
-                break;
-        }
-        return output;
+    public Flags getFlag(int index) {
+        Flags[] values = Flags.values();
+        return values[index];
     }
 
     //update the gameState.players information using task 7,8 function
-    public static ArrayList<Player> updatePlayers(GameState gameState, char move) {
+    public ArrayList<Player> updatePlayers(GameState gameState, char move) {
         ArrayList<Player> output = new ArrayList<>(gameState.players);
 
         String supporters = WarringStatesGame.getSupporters(gameState.originalBoard, gameState.moveHistory, gameState.numOfPlayer, Math.floorMod(gameState.playerturn - 2,gameState.numOfPlayer));

@@ -9,6 +9,6 @@ public enum Flags {
     public final ImageView imageView;
 
     Flags() {
-        this.imageView = new ImageView(new Image(getClass().getResourceAsStream("assets/" + this.name() + ".png")));
+        this.imageView = new ImageView(new Image(getClass().getResourceAsStream("assets/" + this.name() + ".PNG")));
     }
 }
