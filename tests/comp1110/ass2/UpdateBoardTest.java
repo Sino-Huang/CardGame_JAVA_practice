@@ -17,7 +17,7 @@ public class UpdateBoardTest {
     @Rule
     public Timeout globalTimeout = Timeout.millis(2000);
 
-    public static String []CorrectString = {
+    private static String []CorrectString = {
             "g0Aa0Bf1Ca1Dc5Ee1Fa4Ge3He2Ia2Jc2Kd0Lf0Mb4Nd4Oa6Pc3Qe0Ra5Sc1Td1Uc4Vb0Xa7Yf2Zb10a31b33b64d35g16b27d28c09z9W",
             "g0Aa0Bf1Ca1Dc5Ee1Fa4Ge3He2Ia2Jc2Kd0Lf0Mb4Nd4Oa6Pc3Qe0Ra5Sc1Td1Uc4Vb0Xa7Yf2Zb10a31b33b64d35g16b27d28c09z9W",
             "g0Aa0Bf1Ca1De1Fa4Ge3He2Ia2Jd0Lf0Mb4Nd4Oa6Pe0Ra5Sc1Td1Uc4Vb5Wb0Xa7Yf2Zb10a31b33b64d35g16b27d28c09z9E",
@@ -120,8 +120,34 @@ public class UpdateBoardTest {
             "g0Ac1Bb4Ca5Da2Ef0Gb1Ha3Id3Ja0Kc5Mb0Nf1Od2Pe1Qc2Re3Sb6Td0Ub5Va1Wb2Xc3Yb3Zc00e21e02a73d14f25a46g17c48d49z9F"
     };
 
+    private static String[] CorrectFurther = {
+            "b5Wa7Yf2Zd1Ue1Fb0Xb33d28c09c4Vc3Qe3Ha2Jg0Ad35b64d0Lb4Nb10g16b27c1Ta1Dc5Ed4Of1Ce2Ic2Ka0Ba6Pe0Rf0Ma4Ga5Sz91",
+            "b5Wa7Yf2Za31d1Ue1Fb0Xb33d28c09c4Ve3Ha2Jg0Ad35b64d0Lb4Nb10g16b27c1Ta1Dc5Ed4Of1Ce2Ia0Ba6Pe0Rf0Ma4Ga5Sz9K",
+            "b5Wa7Yf2Za31d1Ue1Fb0Xb33d28c09c4Ve3Ha2Jg0Ad35b64d0Lb4Nb10g16b27c1Ta1Dc5Ed4Of1Ce2Ic2Ka0Ba6Pe0Rf0Ma4Ga5Sz9Q",
+            "c0Cd3Ta5Ua2Wb6Gg0Ia0Bc5Xa3Zd21e0Df1Qb2Rc32a64e3Eb4Va7Kc45c20b36a18e29f23g1Ab07d1Ya4Hb5Jd4Fe1Nb1Ld0Oc1Sz9P",
+            "b0Od3Ud2Sc27d18d0Ra5Wc46e0Ba1Eg1Ga0Ic5Pa62a4Vb6Xf11c04f25b2Ke2Qc3Cd4Tb3Ye33a2Ne19b5Ac1Fa3Mb1La7Dg0Hf0Jz9Z",
+            "b24a0Rb6Yc0Ha26e3Fa5De1Wa1Ca48a3Gc4Qg1Ve29c25b4Pc3Ad37a6Bb5Me0Ub0Zd0Eb1Ig0Xa7Tf0Of1Nd2Sb3Ld40d11f22c13z9J",
+            "e2Aa6Re3Pb4Ba57z9Vb6Qc1Uc5Md0Fd18a15g0Ha0Yb54d4Ea7Jc30e11b33f2Kf0Oc2La3Xc4Va4Ie0Sg1Wb1Df1Tc0Cb0Zb2Na22d26d39z9V",
+            "e2Aa6Re3Pb4Ba57z90b6Qc1Uc5Md0Fd18a15g0Ha0Yb54d4Ea7Jc30e11b33f2Kf0Oc2La3Xc4Va4Ie0Sg1Wb1Df1Tc0Cb0Zb2Na22d26d39z90",
+            "e0Rb03a1Nf2Td2La65a4Cf1Hg0Jc2Ke38g1Ab4Fc1Qd4Ez9Ia54c4Va2If0Sa7Zb17a39a00e2Dd36b2Bb6Ob3Ud1Yc5Wd02c3Ge1Mc0Pb5Xz9I",
+            "a0Uc36a3Ib3Lb48a49a2Ec5Ab2Ha11c22a73f0Cb0Dd1Rf14g17d0Yd4Kb6Je0Zc4Od3Pb1Ma6Bg0Qc0Ga5Fc1Ne3Sd2Vf20b55z9T",
+            "a0Uc36a3Ib3Lb48a49a2Ec5Ab2Ha11c22f0Cb0Dd1Rf14g17e2Te1Wd0Yd4Kb6Je0Zc4Od3Pb1Ma6Bg0Qc0Ga5Fc1Ne3Sd2Vf20b55z93",
+            "f0Mf1Pg1Rc4Tb0Ya32f2Wd21b63d45c36d1Ke0Lb2Dd0Qe1Xd3Sb5Vg0Ia6Fa7Gb30c1Ee38b1Na29a04a5Zc2Aa1Jb4Cc57c0Oe2Uz9H",
+            "f0Mf1Pg1Rc4Tb0Ya32f2Wd21b63d45c36d1Ke0Lb2Dd0Qe1Xd3Sb5Vg0Ia6Fa7Gb30c1Ee38b1Na29a04a5Zc2Aa1Jc57a4Hc0Oe2Uz9C",
+            "b54b11c4Le2Aa0He0Ke1Of0Qf23b45g0Ib2Xc52b3Tc0Va7Je36c2Ua5Gb08f1Da2Wd1Sd4Bd2Nd30a1Ya67a3Eg1Mb6Cc1Pd0Fa4Zz9R",
+            "b54b11c4Le2Aa0He0Ke1Of0Qf23b45g0Ib2Xc52c3Rb3Tc0Va7Je36c2Ua5Gf1Da2Wd1Sd4Bd2Nd30a1Ya67a3Eg1Mb6Cc1Pd0Fa4Zz98",
+            "b54b11c4Le2Aa0He0Ke1Of0Qf23g0Ib2Xc52c3Rb3Tc0Va7Je36c2Ua5Gf1Da2Wd1Sd4Bd2Nd30a1Ya67a3Eg1Mb6Cc1Pd0Fa4Zz95",
+            "f0Gc0Ob19b3Ad36a4Fb0Be1Ia3Rg0Kf2Ug1Vf11e0Qd4Hc2Zc32a2Td14c4Xe2Da7Ed05a0Jb6Ld2Cb4Sb23b57c1Wa1Ya50c5Ma68z9P",
+            "g19c2Hb3Ra7Bd3Se2Wb1Ub6Dg0Ib0Gc0Xf0Pd01c4La28f1Ad2Qa0Ca6Kf2Nd1Yc5Zb40a4Mb2Ta33c3Fd44b52a5Ee3Je1Oa15c16z9V",
+            "e0Da7Fa0Gd3Kc1La2Rd1Pb3Sb0Xa3Ze30g1Ea1Ye2Of2Ba41f0Wb5Mc0Nc3Id4Uc23c4Cb4Jb1Vg0Ha64c5Tb25a56b67f18d09e1Az9Q",
+            "e0Da7Fa0Gd3Kc1La2Rd1Pb3Sb0Xa3Ze30g1Ea1Ye2Of2Bf0Wb5Mc0Nd2Qc3Id4Uc23c4Cb4Jb1Vg0Ha64c5Tb25a56b67f18d09e1Az91",
+            "e0Da7Fa0Gd3Kc1La2Rd1Pb3Sb0Xe30g1Ea1Ye2Of2Bf0Wb5Mc0Nd2Qc3Id4Uc23c4Cb4Jb1Vg0Ha64c5Tb25a56b67f18d09e1Az9Z",
+            "b1Xb5Cc52g0Ic1Ya3Le1Ke2Jd4Rb03c4Uf24a17a0Bc08b3Mf1Ta6Fb4Qb2Wd1Nc25d2Oe3Gc3Sa26d0Eb60e09g1Df0Za7Aa4Hd31z9V",
+            "b1Xb5Cc52g0Ic1Ya3Le1Ke2Jd4Rb03c4Uf24a17a0Bc08b3Mf1Ta6Fb4Qa5Vb2Wd1Nc25e3Gc3Sa26d0Eb60e09g1Df0Za7Aa4Hd31z9O",
+            "d49c2Rc3Yb6Tb2Xe21c00g0Ab1Hd3Jf0Gf1Oc1Bb4Ca2Ee3Se02a5Da73g17a3Ie1Qa1Wc5Ma46b3Zd14d2Pd0Uf25c48b5Va6Fb0Nz9K"
+    };
 
-    public static ArrayList<HashSet<String>> Correct(){// Create correct hashset
+    private ArrayList<HashSet<String>> Correct(){// Create correct hashset
         ArrayList<HashSet<String>> corre = new ArrayList<>();
         for(String cor : CorrectString){
             HashSet<String> a = new HashSet<>();
@@ -133,9 +159,23 @@ public class UpdateBoardTest {
         return corre;
     }
 
+    private ArrayList<HashSet<String>> CorrectFurther(){// Create correct furhter hashset
+        ArrayList<HashSet<String>> ss = new ArrayList<>();
+        for(String s : CorrectFurther){
+            HashSet<String> a = new HashSet<>();
+            for(int i = 2; i < s.length(); i += 3){
+                a.add(String.valueOf(s.charAt(i)));
+            }
+            ss.add(a);
+        }
+        return ss;
+    }
+
+
+
 
     @Test
-    public void testGood(){
+    public void testGood(){ // Test the good condition of updateBoard method
         for (int i = 0; i < PLACEMENTS.length ; i++) {
             String setup = TestUtility.shufflePlacement(PLACEMENTS[i]);
             for(int j = 0; j < TestUtility.MOVE_SEQUENCES[i].length; j++){
@@ -147,6 +187,47 @@ public class UpdateBoardTest {
                 }
                 assertTrue("The new placement String " + a + " is not correct.",Correct().get(5*i + j).equals(b));
             }
+        }
+    }
+
+    @Test
+    public void testSameRowColumn(){ // Test the movement is in the same row or column or not
+        for(int i = 0; i < PLACEMENTS.length; i++) {
+            String setup = TestUtility.shufflePlacement(PLACEMENTS[i]);
+            for(int j = 0;  j < TestUtility.ILLEGAL_MOVE_ROW_COL[i].length; j++){
+                String moveSequence = String.valueOf(TestUtility.ILLEGAL_MOVE_ROW_COL[i][j]);
+                String a = WarringStatesGame.updateBoard(setup, moveSequence);
+                assertFalse("The move " + moveSequence + " is not in the same row or column as Zhang Yi, but was accepted.",setup.length() >= a.length());
+            }
+        }
+    }
+
+    @Test
+    public void testFurther(){ // Test the valid movement of the same country with further location
+        ArrayList<HashSet<String>> c = new ArrayList<>();
+        for(int i = 0; i < PLACEMENTS.length; i++) {
+            String setup = TestUtility.shufflePlacement(PLACEMENTS[i]);
+            for(int j = 0;  j < TestUtility.ILLEGAL_MOVE_FURTHER[i].length; j++){
+                String moveSequence = String.valueOf(TestUtility.ILLEGAL_MOVE_FURTHER[i][j]);
+                String a = WarringStatesGame.updateBoard(setup, moveSequence);
+                HashSet<String> b = new HashSet<>();
+                for(int h = 2; h < a.length(); h += 3){
+                    b.add(String.valueOf(a.charAt(h)));
+                }
+                c.add(b);
+            }
+        }
+        for(int i = 0; i < c.size(); i ++){
+            assertTrue("The further movement is not correct.",c.get(i).equals(CorrectFurther().get(i)));
+        }
+    }
+
+    @Test
+    public void testEmptyMoveSequence(){ // Test the move sequence is empty or not
+        for(int i = 0; i < PLACEMENTS.length; i++){
+            String setup = TestUtility.shufflePlacement(PLACEMENTS[i]);
+            String moveSequence = " ";
+            assertFalse("The move sequence cannot be empty, but was accepted.",WarringStatesGame.updateBoard(setup,moveSequence).equals(setup));
         }
     }
 
