@@ -35,10 +35,10 @@ public class Game extends Application {
     private HBox topControl = new HBox();
     private VBox scorePane= new VBox();
     private GridPane mainBody = new GridPane();
-    private GameState gameState = null;
+    public GameState gameState = null;
     private Stage playStage = new Stage();
 
-    static String createBoard() {
+    public static String createBoard() {
         List<String> positionList = new ArrayList<>();
         for (int i = 'A'; i <= 'Z'; i++) {
             positionList.add(String.valueOf((char) i));
@@ -534,13 +534,13 @@ public class Game extends Application {
         return output;
     }
 
-    public Flags getFlag(int index) {
+    public static Flags getFlag(int index) {
         Flags[] values = Flags.values();
         return values[index];
     }
 
     //update the gameState.players information using task 7,8 function
-    public ArrayList<Player> updatePlayers(GameState gameState, char move) {
+    public static ArrayList<Player> updatePlayers(GameState gameState, char move) {
         ArrayList<Player> output = new ArrayList<>(gameState.players);
 
         String supporters = WarringStatesGame.getSupporters(gameState.originalBoard, gameState.moveHistory, gameState.numOfPlayer, Math.floorMod(gameState.playerturn - 2,gameState.numOfPlayer));
