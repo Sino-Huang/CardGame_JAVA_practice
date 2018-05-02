@@ -24,6 +24,7 @@ public class GameStateTest {
         //update gamestate and store it into a new GameState object
         GameState newGameState = new GameState(gameSample, nextMove);
         //ensure that the updated GameState do not share the 'Collections' using its hashCode() value
+        // it is essential because during alpha beta pruning, the machine has to create new memory for the simulation of movement
         assertFalse("The hashcode for the old gameState's players arraylist should not be equal to the new one's", gameSample.players == newGameState.players);
         assertFalse("The hashcode for the old gameState should not be equal to the new one", gameSample == newGameState);
     }
@@ -61,5 +62,29 @@ public class GameStateTest {
 
         assertTrue("Player 1 should take 3 Qin card for the move", newGameState.players.get(0).cards.size() == 3);
         assertTrue("Player 1 should have Qin flag", newGameState.players.get(0).flags.contains(Flags.A));
+    }
+
+    @Test
+    public void keepOriginalBoardTest() {
+        //init board
+        GameState gameSample;
+        gameSample = new GameState(Game.createBoard(), GameState.initPlayers(4, false, false), 1, 4, false, false); // setup the initial gameState
+        //Use generateMove to get a suitable next move for the simulation
+        char nextMove = WarringStatesGame.generateMove(gameSample.boardPlacement);
+        //update gamestate and store it into a new GameState object
+        GameState newGameState = new GameState(gameSample, nextMove);
+        assertTrue("the originalGameState should be equal", newGameState.originalBoard == gameSample.originalBoard);
+    }
+
+    @Test
+    public void movementHistoryTest() {
+        //init board
+        GameState gameSample;
+        gameSample = new GameState(Game.createBoard(), GameState.initPlayers(4, false, false), 1, 4, false, false); // setup the initial gameState
+        //Use generateMove to get a suitable next move for the simulation
+        char nextMove = WarringStatesGame.generateMove(gameSample.boardPlacement);
+        //update gamestate and store it into a new GameState object
+        GameState newGameState = new GameState(gameSample, nextMove);
+        assertTrue("the moveHistory need to be updated", newGameState.moveHistory.charAt(newGameState.moveHistory.length()-1) == nextMove);
     }
 }
