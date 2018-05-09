@@ -164,25 +164,30 @@ public class WarringStatesGame {
             return false;
         }
 
-        if(placement.equals("")){ // Whether the location has a card
+
+        if(placement.equals("")) { // Whether the location has a card
             return false;
-        }else {
-            int count = 0;
-            for (int i = 2; i < placement.length(); i += 3) {
-                if(placement.charAt(i) != locationChar){
-                    count += 1;
-                }
-            }
-            if(count == placement.length()/3){
-                return false;
-            }
         }
 
+
         char zhangyi = ' ';
+        int count = 0;
+        char country = ' ';
         for(int i = 0; i < placement.length(); i++){ // get the location of Zhangyi
             if (placement.charAt(i) == 'z'){
                 zhangyi = placement.charAt(i + 2);
+
             }
+            if ((i-2)%3 == 0){
+                if(placement.charAt(i) == locationChar){
+                    count += 1;
+                    country = placement.charAt(i - 2);
+                }
+            }
+
+        }
+        if(count != 1){
+            return false;
         }
         if (zhangyi == locationChar) {
             return false;
@@ -192,12 +197,8 @@ public class WarringStatesGame {
             return false;
         } // Whether the location is in the same row or column of the Zhang Yi's grid
 
-        char country = ' ';
-        for(int i = 2; i < placement.length(); i += 3){ // Get the country of locationChar
-            if(placement.charAt(i) == locationChar){
-                country = placement.charAt(i - 2);
-            }
-        }
+
+
 
         String countries = "";
         for(int i = 0; i < placement.length(); i += 3){ // Get all the locations of the country above
@@ -205,6 +206,7 @@ public class WarringStatesGame {
                 countries = countries + String.valueOf(placement.charAt(i + 2));
             }
         }
+
 
         // No same kingdom card in the same line that is further away from Zhang yi
         if(hm.get(zhangyi)[0] == hm.get(locationChar)[0]) { // Same column case
@@ -223,6 +225,7 @@ public class WarringStatesGame {
                     }
                 }
             }
+
 
         }else if (hm.get(zhangyi)[1] == hm.get(locationChar)[1]){ // Same row case
             if(hm.get(zhangyi)[0] > hm.get(locationChar)[0]){ // Right direction
